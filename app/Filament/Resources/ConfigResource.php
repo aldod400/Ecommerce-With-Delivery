@@ -16,7 +16,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class ConfigResource extends Resource
 {
     protected static ?string $model = Config::class;
-
+    protected static ?string $navigationGroup = 'Settings';
+    protected static ?int $navigationSort = 4;
     protected static ?string $navigationIcon = 'heroicon-o-cog-8-tooth';
     public static function getModelLabel(): string
     {

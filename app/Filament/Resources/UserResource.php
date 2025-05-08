@@ -13,10 +13,12 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Hash;
+use App\Enums\UserType;
 
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
+    protected static ?int $navigationSort = 3;
 
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
 
@@ -65,22 +67,19 @@ class UserResource extends Resource
                 Forms\Components\TextInput::make('phone')
                     ->label(__('message.Phone'))
                     ->unique(ignoreRecord: true)
+                    ->regex('/^01[0-5]\d{8}$/')
+                    ->minLength(11)
                     ->tel()
                     ->required()
-                    ->maxLength(255),
+                    ->rules(['regex:/^01[0-5]\d{8}$/'])
+                    ->validationAttribute(__('message.Phone')),
                 Forms\Components\FileUpload::make('image')
                     ->label(__('message.Image'))
                     ->default('images/default.png')
+                    ->dehydrated(fn($state) => $state !== null)
+                    ->dehydrateStateUsing(fn($state) => $state ?: 'images/default.png')
                     ->directory('users')
                     ->image(),
-                Forms\Components\Select::make('user_type')
-                    ->label(__('message.User Type'))
-                    ->default('user')
-                    ->options([
-                        'user' => __('message.User'),
-                        'admin' => __('message.Admin'),
-                    ])
-                    ->required(),
                 Forms\Components\Select::make('status')
                     ->label(__('message.Status'))
                     ->required()
@@ -95,9 +94,9 @@ class UserResource extends Resource
                     ->dehydrated(fn($state) => filled($state))
                     ->dehydrateStateUsing(fn($state) => Hash::make($state))
                     ->maxLength(255)
+                    ->regex('/^(?=.*[A-Za-z])(?=.*\d).+$/')
                     ->label(__('message.Password'))
                     ->revealable()
-                    ->columnSpanFull(),
             ]);
     }
 
@@ -122,8 +121,8 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('user_type')
                     ->label(__('message.User Type'))
                     ->badge()
-                    ->color(fn($state) => $state == 'user' ? 'info' : 'primary')
-                    ->formatStateUsing(fn($state) => $state == 'user' ? __('message.User') : __('message.Admin')),
+                    ->color('info')
+                    ->formatStateUsing(fn($state) => $state == UserType::USER ? __('message.User') : __('message.Admin')),
 
                 Tables\Columns\TextColumn::make('status')
                     ->label(__('message.Status'))

@@ -16,12 +16,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'webLang' => \App\Http\Middleware\WebLang::class,
             'lang' => \App\Http\Middleware\Lang::class,
-            'checkAdmin' => \App\Http\Middleware\CheckAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        $exceptions->renderable(function (Throwable $e) {
-            if ($e instanceof \Illuminate\Auth\AuthenticationException) {
+        $exceptions->renderable(function (Throwable $e, $request) {
+            if ($request->is('api/*') && $e instanceof \Illuminate\Auth\AuthenticationException) {
                 return Response::api($e->getMessage(), 400, false, 400);
             }
         });

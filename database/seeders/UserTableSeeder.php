@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use App\Enums\UserType;
 
 class UserTableSeeder extends Seeder
 {
@@ -17,8 +18,8 @@ class UserTableSeeder extends Seeder
         User::create([
             'name' => 'Admin',
             'email' => 'admin@admin.com',
-            'password' => Hash::make('password'),
-            'user_type' => 'admin',
+            'password' => Hash::make('password1'),
+            'user_type' => UserType::ADMIN,
             'status' => 'active',
             'phone' => '01234567890',
             'image' => 'images/default.png',

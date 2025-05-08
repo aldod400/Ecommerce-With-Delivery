@@ -19,6 +19,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Illuminate\Support\Facades\Auth;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -31,6 +32,11 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->colors([
                 'primary' => Color::Blue,
+                'secondary' => Color::Gray,
+                'info' => Color::Cyan,
+                'success' => Color::Green,
+                'warning' => Color::Amber,
+                'danger' => Color::Red,
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
@@ -55,15 +61,16 @@ class AdminPanelProvider extends PanelProvider
                 \App\Http\Middleware\WebLang::class,
             ])
             ->authMiddleware([
-                // Authenticate::class,
-                \App\Http\Middleware\CheckAdmin::class,
+                Authenticate::class,
             ])
             ->userMenuItems([
-                MenuItem::make('lang')
+                MenuItem::make()
                     ->label(fn() => app()->getLocale() === 'ar' ? 'English' : 'العربية')
                     ->url(fn() => route('lang', ['lang' => app()->getLocale() === 'ar' ? 'en' : 'ar']))
                     ->icon('heroicon-o-language'),
             ])
+            ->profile()
+            ->sidebarCollapsibleOnDesktop()
             ->globalSearch(false)
             ->brandLogo(asset('images/default.png'))
             ->brandLogoHeight("50px");

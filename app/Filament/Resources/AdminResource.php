@@ -11,12 +11,14 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Hash;
+use App\Enums\UserType;
 
 class AdminResource extends Resource
 {
     protected static ?string $model = User::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
+    protected static ?int $navigationSort = 2;
 
     public static function getNavigationLabel(): string
     {
@@ -63,22 +65,20 @@ class AdminResource extends Resource
                 Forms\Components\TextInput::make('phone')
                     ->label(__('message.Phone'))
                     ->unique(ignoreRecord: true)
+                    ->regex('/^01[0-5]\d{8}$/')
+                    ->minLength(11)
                     ->tel()
                     ->required()
-                    ->maxLength(255),
+                    ->rules(['regex:/^01[0-5]\d{8}$/'])
+                    ->validationAttribute(__('message.Phone')),
                 Forms\Components\FileUpload::make('image')
                     ->label(__('message.Image'))
                     ->directory('users')
                     ->default('images/default.png')
                     ->image(),
-                Forms\Components\Select::make('user_type')
-                    ->label(__('message.User Type'))
+                Forms\Components\Hidden::make('user_type')
                     ->default('admin')
-                    ->options([
-                        'admin' => __('message.Admin'),
-                        'user' => __('message.User'),
-                    ])
-                    ->required(),
+                    ->dehydrated(true),
                 Forms\Components\Select::make('status')
                     ->label(__('message.Status'))
                     ->required()
@@ -93,9 +93,9 @@ class AdminResource extends Resource
                     ->dehydrated(fn($state) => filled($state))
                     ->dehydrateStateUsing(fn($state) => Hash::make($state))
                     ->maxLength(255)
+                    ->regex('/^(?=.*[A-Za-z])(?=.*\d).+$/')
                     ->label(__('message.Password'))
                     ->revealable()
-                    ->columnSpanFull(),
             ]);
     }
 
@@ -105,9 +105,11 @@ class AdminResource extends Resource
             ->columns([
                 Tables\Columns\ImageColumn::make('image')
                     ->label(__('message.Image'))
-                    ->disk('public')
-                    ->circular()
-                    ->defaultImageUrl(asset('images/default.png')),
+                    ->default('images/default.png')
+                    ->dehydrated(fn($state) => $state !== null)
+                    ->dehydrateStateUsing(fn($state) => $state ?: 'images/default.png')
+                    ->directory('users')
+                    ->image(),
                 Tables\Columns\TextColumn::make('name')
                     ->label(__('message.Name'))
                     ->searchable(),
@@ -120,8 +122,8 @@ class AdminResource extends Resource
                 Tables\Columns\TextColumn::make('user_type')
                     ->label(__('message.User Type'))
                     ->badge()
-                    ->color(fn($state) => $state == 'admin' ? 'primary' : 'info')
-                    ->formatStateUsing(fn($state) => $state == 'admin' ? __('message.Admin') : __('message.User')),
+                    ->color(fn($state) => $state == UserType::ADMIN ? 'primary' : 'info')
+                    ->formatStateUsing(fn($state) => $state == UserType::ADMIN ? __('message.Admin') : __('message.User')),
                 Tables\Columns\TextColumn::make('status')
                     ->label(__('message.Status'))
                     ->badge()
