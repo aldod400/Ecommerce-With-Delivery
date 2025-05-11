@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\BannerResource\Pages;
-use App\Filament\Resources\BannerResource\RelationManagers;
-use App\Models\Banner;
+use App\Filament\Resources\BrandResource\Pages;
+use App\Filament\Resources\BrandResource\RelationManagers;
+use App\Models\Brand;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,49 +13,47 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class BannerResource extends Resource
+class BrandResource extends Resource
 {
-    protected static ?string $model = Banner::class;
-    protected static ?string $navigationGroup = 'Settings';
-    protected static ?int $navigationSort = 3;
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $model = Brand::class;
+
+    protected static ?string $navigationIcon = 'heroicon-o-building-storefront';
+    public static ?int $navigationSort = 2;
     public static function getNavigationGroup(): string
     {
-        return __('message.Settings');
+        return __('message.Store Management');
     }
+
     public static function getNavigationLabel(): string
     {
-        return __('message.Banners');
+        return __('message.Brands');
     }
 
     public static function getModelLabel(): string
     {
-        return __('message.Banner');
+        return __('message.Brand');
     }
 
     public static function getPluralModelLabel(): string
     {
-        return __('message.Banners');
+        return __('message.Brands');
     }
-
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->label(__('message.Name'))
+                Forms\Components\TextInput::make('name_ar')
+                    ->label(__('message.Name in Arabic'))
                     ->required()
-                    ->maxLength(255)
-                    ->columnSpanFull(),
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('name_en')
+                    ->label(__('message.Name in English'))
+                    ->required()
+                    ->maxLength(255),
                 Forms\Components\FileUpload::make('image')
                     ->label(__('message.Image'))
-                    ->image()
                     ->required()
-                    ->columnSpanFull()
-                    ->directory('banners'),
-                Forms\Components\TextInput::make('link')
-                    ->label(__('message.Link'))
-                    ->maxLength(255)
+                    ->image()
                     ->columnSpanFull(),
             ]);
     }
@@ -66,29 +64,31 @@ class BannerResource extends Resource
             ->columns([
                 Tables\Columns\ImageColumn::make('image')
                     ->label(__('message.Image'))
-                    ->circular(),
-                Tables\Columns\TextColumn::make('name')
-                    ->label(__('message.Name'))
+                    ->circular()
+                    ->size(50),
+                Tables\Columns\TextColumn::make('name_ar')
+                    ->label(__('message.Name in Arabic'))
+                    ->alignCenter()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('link')
-                    ->default('-')
-                    ->label(__('message.Link'))
+                Tables\Columns\TextColumn::make('name_en')
+                    ->label(__('message.Name in English'))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->alignCenter()
+                    ->toggleable(true),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->alignCenter()
+                    ->toggleable(true),
             ])
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -107,9 +107,9 @@ class BannerResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListBanners::route('/'),
-            'create' => Pages\CreateBanner::route('/create'),
-            'edit' => Pages\EditBanner::route('/{record}/edit'),
+            'index' => Pages\ListBrands::route('/'),
+            'create' => Pages\CreateBrand::route('/create'),
+            'edit' => Pages\EditBrand::route('/{record}/edit'),
         ];
     }
 }

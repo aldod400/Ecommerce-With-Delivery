@@ -28,6 +28,11 @@ class ConfigResource extends Resource
     {
         return __('message.Configs');
     }
+    public static function getNavigationGroup(): string
+    {
+        return __('message.Settings');
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -103,7 +108,7 @@ class ConfigResource extends Resource
                     ->label(__('message.Updated At'))
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(true),
             ])
             ->filters([
                 //

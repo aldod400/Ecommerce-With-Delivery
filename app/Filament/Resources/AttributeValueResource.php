@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\BannerResource\Pages;
-use App\Filament\Resources\BannerResource\RelationManagers;
-use App\Models\Banner;
+use App\Filament\Resources\AttributeValueResource\Pages;
+use App\Filament\Resources\AttributeValueResource\RelationManagers;
+use App\Models\AttributeValue;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,49 +13,44 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class BannerResource extends Resource
+class AttributeValueResource extends Resource
 {
-    protected static ?string $model = Banner::class;
-    protected static ?string $navigationGroup = 'Settings';
+    protected static ?string $model = AttributeValue::class;
+
+    protected static ?string $navigationIcon = 'heroicon-o-puzzle-piece';
     protected static ?int $navigationSort = 3;
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
     public static function getNavigationGroup(): string
     {
-        return __('message.Settings');
+        return __('message.Store Management');
     }
     public static function getNavigationLabel(): string
     {
-        return __('message.Banners');
+        return __('message.Attribute Values');
     }
 
     public static function getModelLabel(): string
     {
-        return __('message.Banner');
+        return __('message.Attribute Value');
     }
 
     public static function getPluralModelLabel(): string
     {
-        return __('message.Banners');
+        return __('message.Attribute Values');
     }
-
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->label(__('message.Name'))
+                Forms\Components\TextInput::make('value')
+                    ->label(__('message.Value'))
                     ->required()
                     ->maxLength(255)
                     ->columnSpanFull(),
-                Forms\Components\FileUpload::make('image')
-                    ->label(__('message.Image'))
-                    ->image()
+                Forms\Components\Select::make('attribute_id')
+                    ->relationship('attribute', app()->getLocale() == 'ar' ? 'name_ar' : 'name_en')
                     ->required()
-                    ->columnSpanFull()
-                    ->directory('banners'),
-                Forms\Components\TextInput::make('link')
-                    ->label(__('message.Link'))
-                    ->maxLength(255)
+                    ->label(__('message.Attribute'))
                     ->columnSpanFull(),
             ]);
     }
@@ -64,24 +59,21 @@ class BannerResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('image')
-                    ->label(__('message.Image'))
-                    ->circular(),
-                Tables\Columns\TextColumn::make('name')
-                    ->label(__('message.Name'))
+                Tables\Columns\TextColumn::make('value')
+                    ->label(__('message.Value'))
                     ->searchable(),
-                Tables\Columns\TextColumn::make('link')
-                    ->default('-')
-                    ->label(__('message.Link'))
-                    ->searchable(),
+                Tables\Columns\TextColumn::make(app()->getLocale() == 'ar' ? 'attribute.name_ar' : 'attribute.name_en')
+                    ->label(__('message.Attribute'))
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(true),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(true),
             ])
             ->filters([
                 //
@@ -107,9 +99,9 @@ class BannerResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListBanners::route('/'),
-            'create' => Pages\CreateBanner::route('/create'),
-            'edit' => Pages\EditBanner::route('/{record}/edit'),
+            'index' => Pages\ListAttributeValues::route('/'),
+            'create' => Pages\CreateAttributeValue::route('/create'),
+            'edit' => Pages\EditAttributeValue::route('/{record}/edit'),
         ];
     }
 }

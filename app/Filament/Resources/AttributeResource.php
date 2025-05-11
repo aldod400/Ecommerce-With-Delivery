@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\BannerResource\Pages;
-use App\Filament\Resources\BannerResource\RelationManagers;
-use App\Models\Banner;
+use App\Filament\Resources\AttributeResource\Pages;
+use App\Filament\Resources\AttributeResource\RelationManagers;
+use App\Models\Attribute;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,48 +13,46 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class BannerResource extends Resource
+class AttributeResource extends Resource
 {
-    protected static ?string $model = Banner::class;
-    protected static ?string $navigationGroup = 'Settings';
+    protected static ?string $model = Attribute::class;
+    protected static ?string $navigationIcon = 'heroicon-o-swatch';
     protected static ?int $navigationSort = 3;
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
+    protected static ?string $table = Table::class;
+
     public static function getNavigationGroup(): string
     {
-        return __('message.Settings');
+        return __('message.Store Management');
     }
     public static function getNavigationLabel(): string
     {
-        return __('message.Banners');
+        return __('message.Attributes');
     }
 
     public static function getModelLabel(): string
     {
-        return __('message.Banner');
+        return __('message.Attribute');
     }
 
     public static function getPluralModelLabel(): string
     {
-        return __('message.Banners');
+        return __('message.Attributes');
     }
+
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->label(__('message.Name'))
+                Forms\Components\TextInput::make('name_ar')
+                    ->label(__('message.Name in Arabic'))
                     ->required()
                     ->maxLength(255)
                     ->columnSpanFull(),
-                Forms\Components\FileUpload::make('image')
-                    ->label(__('message.Image'))
-                    ->image()
+                Forms\Components\TextInput::make('name_en')
+                    ->label(__('message.Name in English'))
                     ->required()
-                    ->columnSpanFull()
-                    ->directory('banners'),
-                Forms\Components\TextInput::make('link')
-                    ->label(__('message.Link'))
                     ->maxLength(255)
                     ->columnSpanFull(),
             ]);
@@ -64,15 +62,11 @@ class BannerResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('image')
-                    ->label(__('message.Image'))
-                    ->circular(),
-                Tables\Columns\TextColumn::make('name')
-                    ->label(__('message.Name'))
+                Tables\Columns\TextColumn::make('name_ar')
+                    ->label(__('message.Name in Arabic'))
                     ->searchable(),
-                Tables\Columns\TextColumn::make('link')
-                    ->default('-')
-                    ->label(__('message.Link'))
+                Tables\Columns\TextColumn::make('name_en')
+                    ->label(__('message.Name in English'))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -107,9 +101,9 @@ class BannerResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListBanners::route('/'),
-            'create' => Pages\CreateBanner::route('/create'),
-            'edit' => Pages\EditBanner::route('/{record}/edit'),
+            'index' => Pages\ListAttributes::route('/'),
+            'create' => Pages\CreateAttribute::route('/create'),
+            'edit' => Pages\EditAttribute::route('/{record}/edit'),
         ];
     }
 }

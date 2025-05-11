@@ -75,4 +75,13 @@ class User extends Authenticatable implements JWTSubject, FilamentUser
     {
         return $this->user_type === UserType::ADMIN;
     }
+
+    public function cart()
+    {
+        return $this->belongsTo(Cart::class);
+    }
+    public function coupon()
+    {
+        return $this->hasMany(Coupon::class);
+    }
 }
