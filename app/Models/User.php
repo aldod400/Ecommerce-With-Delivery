@@ -80,8 +80,15 @@ class User extends Authenticatable implements JWTSubject, FilamentUser
     {
         return $this->belongsTo(Cart::class);
     }
-    public function coupon()
+    public function coupons()
     {
-        return $this->hasMany(Coupon::class);
+        return $this->belongsToMany(Coupon::class, 'user_coupons')
+            ->withPivot('used_at')
+            ->withTimestamps();
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
     }
 }

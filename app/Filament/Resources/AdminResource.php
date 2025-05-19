@@ -73,7 +73,7 @@ class AdminResource extends Resource
                     ->validationAttribute(__('message.Phone')),
                 Forms\Components\FileUpload::make('image')
                     ->label(__('message.Image'))
-                    ->directory('users')
+                    ->directory('admins')
                     ->default('images/default.png')
                     ->image(),
                 Forms\Components\Hidden::make('user_type')
@@ -105,11 +105,9 @@ class AdminResource extends Resource
             ->columns([
                 Tables\Columns\ImageColumn::make('image')
                     ->label(__('message.Image'))
-                    ->default('images/default.png')
-                    ->dehydrated(fn($state) => $state !== null)
-                    ->dehydrateStateUsing(fn($state) => $state ?: 'images/default.png')
-                    ->directory('users')
-                    ->image(),
+                    ->disk('public')
+                    ->circular()
+                    ->defaultImageUrl(asset('images/default.png')),
                 Tables\Columns\TextColumn::make('name')
                     ->label(__('message.Name'))
                     ->searchable(),

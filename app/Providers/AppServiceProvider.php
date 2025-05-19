@@ -12,6 +12,9 @@ use App\Repository\Contracts\AuthRepositoryInterface;
 use App\Repository\Eloquent\AuthRepository;
 use App\Services\Contracts\AuthServiceInterface;
 use App\Services\Implementations\AuthService;
+use App\Strategies\Contracts\Login\LoginStrategyInterface;
+use App\Strategies\Implementations\Login\EmailLoginStrategy;
+use App\Strategies\Implementations\Login\PhoneLoginStrategy;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,7 +23,21 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(ConfigServiceInterface::class, ConfigService::class);
+        $this->app->bind(ConfigRepositoryInterface::class, ConfigRepository::class);
+        $this->app->bind(AuthRepositoryInterface::class, AuthRepository::class);
+        $this->app->bind(AuthServiceInterface::class, AuthService::class);
+
+        $this->app->bind(AuthServiceInterface::class, function ($app) {
+            return new AuthService(
+                $app->make(AuthRepositoryInterface::class),
+                $app->make(LoginStrategyInterface::class . '_email'),
+                $app->make(LoginStrategyInterface::class . '_phone')
+            );
+        });
+
+        $this->app->bind(LoginStrategyInterface::class . '_email', EmailLoginStrategy::class);
+        $this->app->bind(LoginStrategyInterface::class . '_phone', PhoneLoginStrategy::class);
     }
 
     /**
@@ -28,7 +45,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-
         Response::macro(
             'api',
             function ($message, $statusCode = 200, $status = true, $errorNum = null, $data = null) {
@@ -44,9 +60,5 @@ class AppServiceProvider extends ServiceProvider
                 return response()->json($responseData, $statusCode);
             }
         );
-        $this->app->bind(ConfigServiceInterface::class, ConfigService::class);
-        $this->app->bind(ConfigRepositoryInterface::class, ConfigRepository::class);
-        $this->app->bind(AuthServiceInterface::class, AuthService::class);
-        $this->app->bind(AuthRepositoryInterface::class, AuthRepository::class);
     }
 }

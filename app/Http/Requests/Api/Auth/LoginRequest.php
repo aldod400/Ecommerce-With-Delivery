@@ -45,7 +45,15 @@ class LoginRequest extends FormRequest
             'identifier' => [
                 'required',
                 function ($attribute, $value, $fail) {
-                    if (!filter_var($value, FILTER_VALIDATE_EMAIL) && !preg_match('/^01\d{9}$/', $value)) {
+                    $isEmail = filter_var($value, FILTER_VALIDATE_EMAIL, FILTER_FLAG_EMAIL_UNICODE);
+                    $isPhone = preg_match('/^01\d{9}$/', $value);
+
+                    if ($isEmail) {
+                        $domain = explode('@', $value)[1] ?? '';
+                        if (!checkdnsrr($domain, 'MX')) {
+                            $fail(__('message.The email domain does not exist.'));
+                        }
+                    } elseif (!$isPhone) {
                         $fail(__('message.The phoneOrEmail must be a valid email or an Egyptian phone number.'));
                     }
                 },

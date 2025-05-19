@@ -14,6 +14,7 @@ use Illuminate\Http\Response;
  * @property string $password
  * @property string $image
  * @property string $fcm_token
+ * @property string $user_type
  */
 class RegisterRequest extends FormRequest
 {
@@ -40,11 +41,12 @@ class RegisterRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'email' => 'required_without:phone|string|email|max:255|unique:users,email',
+            'email' => 'required_without:phone|string|email:dns|max:255|unique:users,email',
             'phone' => 'required_without:email|string|unique:users,phone|regex:/^01\d{9}$/',
             'password' => 'required|string|min:8|confirmed | regex:/[A-Za-z]/ | regex:/[0-9]/',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'fcm_token' => 'nullable|string',
+            'user_type' => 'required|string|in:user,deliveryman'
         ];
     }
 

@@ -64,6 +64,7 @@ class CategoryResource extends Resource
                     ->default(fn(callable $get) => (string) str($get('name_en'))->slug()),
                 Forms\Components\FileUpload::make('image')
                     ->label(__('message.Image'))
+                    ->directory('categories')
                     ->required()
                     ->image(),
                 Forms\Components\Select::make('parent_id')

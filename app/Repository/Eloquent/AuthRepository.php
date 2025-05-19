@@ -7,31 +7,26 @@ use App\Repository\Contracts\AuthRepositoryInterface;
 
 class AuthRepository implements AuthRepositoryInterface
 {
-    public function findByIdentifier(string $identifier)
+    public function findByEmail(string $email)
     {
-        return filter_var($identifier, FILTER_VALIDATE_EMAIL)
-            ? User::where('email', $identifier)->first()
-            : User::where('phone', $identifier)->first();
+        return User::where('email', $email)->first();
     }
 
-    public function register(array $data)
+    public function findByPhone(string $phone)
+    {
+        return User::where('phone', $phone)->first();
+    }
+
+
+    public function createUser(array $data)
     {
         return User::create($data);
     }
 
-    public function getUser()
+    public function updateUserById(string $id, array $data)
     {
-        return auth('api')->user();
-    }
-
-    public function updateUser(array $data)
-    {
-        $user = auth('api')->user();
+        $user = User::findOrFail($id);
         $user->update($data);
         return $user;
-    }
-    public function updateFcmToken(string $fcmToken)
-    {
-        return auth('api')->user()->update(['fcm_token' => $fcmToken]);
     }
 }

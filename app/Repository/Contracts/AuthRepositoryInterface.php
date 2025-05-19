@@ -4,9 +4,9 @@ namespace App\Repository\Contracts;
 
 interface AuthRepositoryInterface
 {
-    public function findByIdentifier(string $identifier);
-    public function register(array $data);
-    public function getUser();
-    public function updateUser(array $data);
-    public function updateFcmToken(string $fcmToken);
+    public function findByEmail(string $email);
+    public function findByPhone(string $phone);
+
+    public function createUser(array $data);
+    public function updateUserById(string $id, array $data);
 }

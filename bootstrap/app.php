@@ -1,9 +1,12 @@
 <?php
 
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -18,10 +21,23 @@ return Application::configure(basePath: dirname(__DIR__))
             'lang' => \App\Http\Middleware\Lang::class,
         ]);
     })
+
     ->withExceptions(function (Exceptions $exceptions) {
-        $exceptions->renderable(function (Throwable $e, $request) {
-            if ($request->is('api/*') && $e instanceof \Illuminate\Auth\AuthenticationException) {
-                return Response::api($e->getMessage(), 400, false, 400);
+        // $exceptions->render(function (NotFoundHttpException $e, Request $request) {
+        //     if ($request->is('api/*')) {
+        //         return Response::api(__('message.Not Found'), 404, false, 404);
+        //     }
+        // });
+
+        $exceptions->render(function (AuthenticationException $e, Request $request) {
+            if ($request->is('api/*')) {
+                return Response::api(__('message.Unauthorized'), 401, false, 401);
             }
         });
+
+        // $exceptions->render(function (Throwable $e, Request $request) {
+        //     if ($request->is('api/*')) {
+        //         return Response::api(__('message.Internal Server Error'), 500, false, 500);
+        //     }
+        // });
     })->create();

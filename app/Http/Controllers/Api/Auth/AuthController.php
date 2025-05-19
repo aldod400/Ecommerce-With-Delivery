@@ -21,7 +21,13 @@ class AuthController extends Controller
     public function login(LoginRequest $request)
     {
         $result = $this->authService->login($request->identifier, $request->password, $request->fcm_token ?? null);
-        return Response::api(__('message.login_success'), 200, true, null, $result);
+        if (!$result['success']) {
+            return Response::api($result['message'], 400, false, 400);
+        }
+        return Response::api(__('message.login_success'), 200, true, null, [
+            'user' => $result['user'],
+            'token' => $result['token'],
+        ]);
     }
 
     public function register(RegisterRequest $request)
@@ -32,7 +38,8 @@ class AuthController extends Controller
             'phone' => $request->phone,
             'password' => $request->password,
             'image' => $request->image,
-            'fcm_token' => $request->fcm_token,
+            'user_type' => $request->user_type,
+            'fcm_token' => $request->fcm_token ?? null,
         ]);
         return Response::api(__('message.register_success'), 200, true, null, $result);
     }

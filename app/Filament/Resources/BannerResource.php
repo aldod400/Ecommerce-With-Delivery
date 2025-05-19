@@ -49,6 +49,7 @@ class BannerResource extends Resource
                     ->columnSpanFull(),
                 Forms\Components\FileUpload::make('image')
                     ->label(__('message.Image'))
+                    ->directory('banners')
                     ->image()
                     ->required()
                     ->columnSpanFull()

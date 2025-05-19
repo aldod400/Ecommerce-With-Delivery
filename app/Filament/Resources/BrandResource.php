@@ -52,6 +52,7 @@ class BrandResource extends Resource
                     ->maxLength(255),
                 Forms\Components\FileUpload::make('image')
                     ->label(__('message.Image'))
+                    ->directory('brands')
                     ->required()
                     ->image()
                     ->columnSpanFull(),

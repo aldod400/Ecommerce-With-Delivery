@@ -2,40 +2,53 @@
 
 namespace App\Services\Implementations;
 
-use App\Helpers\Helpers;
+use App\Helpers\ImageHelpers;
 use App\Repository\Contracts\AuthRepositoryInterface;
 use App\Services\Contracts\AuthServiceInterface;
+use App\Strategies\Contracts\Login\LoginStrategyInterface;
 use Illuminate\Auth\AuthenticationException;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 
 class AuthService implements AuthServiceInterface
 {
     protected $authRepository;
+    protected $loginStrategies;
 
-    public function __construct(AuthRepositoryInterface $authRepository)
-    {
+    public function __construct(
+        AuthRepositoryInterface $authRepository,
+        LoginStrategyInterface ...$loginStrategies
+    ) {
         $this->authRepository = $authRepository;
+        $this->loginStrategies = $loginStrategies;
     }
 
     public function login(string $identifier, string $password, ?string $fcmToken)
     {
-        $user = $this->authRepository->findByIdentifier($identifier);
-        if (!$user)
-            throw new AuthenticationException(__('message.Invalid Email or Phone'));
+        $strategy = collect($this->loginStrategies)
+            ->first(function ($strategy) use ($identifier) {
+                return $strategy->canHandle($identifier);
+            });
 
+        if (!$strategy)
+            return [
+                'success' => false,
+                'message' => __('message.No strategy found for') . ' ' . $identifier,
+            ];
 
-        if (!Hash::check($password, $user->password))
-            throw new AuthenticationException(__('message.Invalid Password'));
+        $result = $strategy->login($identifier, $password);
 
-        $token = auth('api')->login($user);
+        if (!$result['success'])
+            return $result;
+
+        $token = auth('api')->login($result['user']) ?? '';
 
         if ($fcmToken)
             $this->updateFcmToken($fcmToken);
 
         return [
-            'user' => $user,
+            'success' => true,
+            'user' => $result['user'],
             'token' => $token
         ];
     }
@@ -43,15 +56,15 @@ class AuthService implements AuthServiceInterface
     public function register(array $data)
     {
         if ($data['image'])
-            $data['image'] = Helpers::addImage($data['image'], 'users');
+            $data['image'] = ImageHelpers::addImage($data['image'], 'users');
 
         $data['image'] = $data['image'] ?? 'images/default.png';
 
         $data['password'] = Hash::make($data['password']);
 
-        $user = $this->authRepository->register($data);
+        $user = $this->authRepository->createUser($data);
 
-        $token = auth('api')->login($user);
+        $token = auth('api')->login($user) ?? '';
 
         return [
             'user' => $user,
@@ -61,7 +74,8 @@ class AuthService implements AuthServiceInterface
 
     public function profile()
     {
-        return $this->authRepository->getUser();
+        $user = auth('api')->user();
+        return $user;
     }
 
     public function updateProfile(array $data)
@@ -71,7 +85,7 @@ class AuthService implements AuthServiceInterface
             if (File::exists($user->image)) {
                 File::delete($user->image);
             }
-            $data['image'] = Helpers::addImage($data['image'], 'users');
+            $data['image'] = ImageHelpers::addImage($data['image'], 'users');
         }
 
         $data['image'] = $data['image'] ?? $user->image;
@@ -86,11 +100,15 @@ class AuthService implements AuthServiceInterface
         if ($data['fcm_token'])
             $this->updateFcmToken($data['fcm_token']);
 
-        return $this->authRepository->updateUser($data);
+        return $this->authRepository->updateUserById($user, $data);
     }
 
     public function updateFcmToken(string $fcmToken)
     {
-        return $this->authRepository->updateFcmToken($fcmToken);
+        $userId = auth('api')->user()->id;
+
+        $data = ['fcm_token' => $fcmToken];
+
+        return $this->authRepository->updateUserById($userId, $data);
     }
 }

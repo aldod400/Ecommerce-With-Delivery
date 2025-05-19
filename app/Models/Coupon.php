@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use \App\Enums\DiscountType;
 
 class Coupon extends Model
 {
@@ -11,10 +12,16 @@ class Coupon extends Model
         'discount_type',
         'discount_value',
         'expiry_date',
+        'usage_limit',
+    ];
+    protected $casts = [
+        'discount_type' => DiscountType::class,
     ];
 
-    // public function orders()
-    // {
-    //     return $this->hasMany(Order::class);
-    // }
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'user_coupons')
+            ->withPivot('used_at')
+            ->withTimestamps();
+    }
 }

@@ -5,12 +5,17 @@ namespace App\Filament\Resources\ProductResource\RelationManagers;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Resources\RelationManagers\RelationManager;
+use Illuminate\Database\Eloquent\Model;
 
 class ImagesRelationManager extends RelationManager
 {
     protected static string $relationship = 'images';
 
     protected static ?string $recordTitleAttribute = 'image';
+    public static function getTitle(Model $ownerRecord, string $pageClass): string
+    {
+        return __('message.Images');
+    }
     public static function getNavigationLabel(): string
     {
         return __('message.Images');

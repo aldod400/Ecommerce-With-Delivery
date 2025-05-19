@@ -4,7 +4,7 @@ namespace App\Helpers;
 
 use Illuminate\Http\UploadedFile;
 
-class Helpers
+class ImageHelpers
 {
     public static function addImage(UploadedFile $image, string $path)
     {
@@ -14,4 +14,5 @@ class Helpers
 
         return $path;
     }
+    
 }

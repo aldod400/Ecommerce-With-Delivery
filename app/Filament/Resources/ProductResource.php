@@ -10,8 +10,9 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Models\AttributeValue;
+use App\Models\Attribute;
+use App\Models\ProductAttributeValue;
 
 class ProductResource extends Resource
 {
@@ -104,12 +105,12 @@ class ProductResource extends Resource
                     ->preload(),
                 Forms\Components\Repeater::make('images')
                     ->label(__('message.Images'))
-                    ->relationship('images')
+                    ->relationship()
                     ->schema([
                         Forms\Components\FileUpload::make('image')
                             ->label(__('message.Image'))
                             ->image()
-                            ->directory('products/images')
+                            ->directory('products')
                             ->required(),
                     ])
                     ->required()
@@ -166,12 +167,12 @@ class ProductResource extends Resource
                     ->label(__('message.Created At'))
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(true),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->label(__('message.Updated At'))
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(true),
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('category_id')
@@ -196,6 +197,7 @@ class ProductResource extends Resource
     {
         return [
             RelationManagers\ImagesRelationManager::class,
+            RelationManagers\ProductAttributesRelationManager::class,
         ];
     }
 
