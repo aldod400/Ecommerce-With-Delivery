@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class OderDetail extends Model
+class OrderDetail extends Model
 {
     protected $fillable = [
         'order_id',
@@ -12,6 +12,7 @@ class OderDetail extends Model
         'quantity',
         'price'
     ];
+
 
     public function product()
     {

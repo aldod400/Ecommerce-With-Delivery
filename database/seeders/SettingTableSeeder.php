@@ -31,5 +31,13 @@ class SettingTableSeeder extends Seeder
             'key' => 'delivery_fee_per_km',
             'value' => '',
         ]);
+        Setting::updateOrCreate([
+            'key' => 'latitude',
+            'value' => '',
+        ]);
+        Setting::updateOrCreate([
+            'key' => 'longitude',
+            'value' => '',
+        ]);
     }
 }

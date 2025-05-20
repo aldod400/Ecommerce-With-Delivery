@@ -17,7 +17,7 @@ class CouponResource extends Resource
     protected static ?string $model = Coupon::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-receipt-percent';
-    public static ?int $navigationSort = 6;
+    public static ?int $navigationSort = 7;
     public static function getNavigationGroup(): string
     {
         return __('message.Store Management');

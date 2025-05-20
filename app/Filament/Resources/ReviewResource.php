@@ -20,7 +20,7 @@ class ReviewResource extends Resource
     protected static ?string $model = Review::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-star';
-    protected static ?int $navigationSort = 6;
+    protected static ?int $navigationSort = 8;
     public static function getNavigationGroup(): string
     {
         return __('message.Store Management');

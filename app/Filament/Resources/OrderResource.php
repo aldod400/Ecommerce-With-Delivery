@@ -17,32 +17,37 @@ use App\Enums\OrderStatus;
 use App\Models\Coupon;
 use App\Models\UserCoupons;
 use Filament\Notifications\Notification;
-use App\Models\City;
-use App\Models\Area;
+use Illuminate\Support\Str;
 
 class OrderResource extends Resource
 {
     protected static ?string $model = Order::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
+    protected static ?int $navigationSort = 6;
 
+    public static function getNavigationGroup(): string
+    {
+        return __('message.Store Management');
+    }
+    public static function getNavigationLabel(): string
+    {
+        return __('message.Orders');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('message.Order');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('message.Orders');
+    }
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('user_id')
-                    ->label(__('message.User'))
-                    ->options(function () {
-                        return User::where('user_type', UserType::USER)->get()->mapWithKeys(function ($user) {
-                            return [
-                                $user->id => $user->phone ? $user->name . '- ' . $user->phone : $user->name,
-                            ];
-                        });
-                    })
-                    ->searchable()
-                    ->preload()
-                    ->required()
-                    ->columnSpanFull(),
                 Forms\Components\Select::make('deliveryman_id')
                     ->label(__('message.Deliveryman'))
                     ->options(function () {
@@ -54,10 +59,10 @@ class OrderResource extends Resource
                     })
                     ->searchable()
                     ->preload()
-                    ->required()
                     ->visible(fn() => Setting::where('key', 'deliveryman')->value('value') === '1')
                     ->default(null)
                     ->columnSpanFull(),
+
                 Forms\Components\Select::make('status')
                     ->label(__('message.Status'))
                     ->options(function () {
@@ -80,122 +85,15 @@ class OrderResource extends Resource
                     })
                     ->required()
                     ->columnSpanFull(),
-                Forms\Components\Select::make('payment_method')
-                    ->label(__('message.Payment Method'))
-                    ->options([
-                        'cash' => __('message.Cash'),
-                        'online' => __('message.Online'),
-                    ])
-                    ->required(),
+
                 Forms\Components\Select::make('payment_status')
                     ->label(__('message.Payment Status'))
                     ->options([
                         'paid' => __('message.Paid'),
                         'unpaid' => __('message.Unpaid'),
                     ])
-                    ->required(),
-                Forms\Components\Textarea::make('address')
-                    ->label(__('message.Address'))
                     ->required()
-                    ->maxLength(255)
-                    ->default(null)
                     ->columnSpanFull(),
-                Forms\Components\Textarea::make('notes')
-                    ->label(__('message.Notes'))
-                    ->columnSpanFull(),
-                Forms\Components\Select::make('coupon_id')
-                    ->label(__('message.Coupon'))
-                    ->options(Coupon::where('expiry_date', '>', now())->pluck('code', 'id'))
-                    ->default(null)
-                    ->afterStateUpdated(function ($state, $set, $get) {
-                        $userId = $get('user_id');
-                        if ($userId && $state) {
-                            $couponCount = UserCoupons::where('coupon_id', $state)->count();
-                            if ($couponCount >= Coupon::find($state)->usage_limit) {
-                                Notification::make()
-                                    ->warning()
-                                    ->title(__('Coupon Limit Reached'))
-                                    ->body(__('This coupon has reached its maximum usage limit.'))
-                                    ->send();
-                            }
-                            $userCoupon = UserCoupons::where('user_id', $userId)->where('coupon_id', $state)->first();
-                            if ($userCoupon && $userCoupon) {
-                                Notification::make()
-                                    ->warning()
-                                    ->title(__('Coupon Already Used'))
-                                    ->body(__('This user has already used this coupon.'))
-                                    ->send();
-                            }
-                            UserCoupons::Create(
-                                [
-                                    'user_id' => $userId,
-                                    'coupon_id' => $state,
-                                    'is_used' => true,
-                                    'used_at' => now(),
-                                ],
-                            );
-                        }
-                    })
-                    ->searchable()
-                    ->preload()
-                    ->columnSpanFull(),
-                Forms\Components\Hidden::make('discount')
-                    ->label(__('message.Discount'))
-                    ->default(0.00),
-                Forms\Components\Select::make('city_id')
-                    ->label(__('message.City'))
-                    ->options(fn() => City::all()->mapWithKeys(function ($city) {
-                        return [$city->id => app()->getLocale() == 'ar' ? $city->name_ar : $city->name_en];
-                    }))
-                    ->searchable()
-                    ->preload()
-                    ->default(null)
-                    ->columnSpanFull(),
-                Forms\Components\Select::make('area_id')
-                    ->label(__('message.Area'))
-                    ->options(fn() => Area::all()->mapWithKeys(function ($city) {
-                        return [$city->id => app()->getLocale() == 'ar' ? $city->name_ar : $city->name_en];
-                    }))
-                    ->searchable()
-                    ->preload()
-                    ->default(null)
-                    ->visible(fn() => Setting::where('key', 'deliveryman')
-                        ->value('value') === '1' && Setting::where('key', 'delivery_fee_type')
-                        ->value('value') === 'area')
-                    ->columnSpanFull(),
-                Forms\Components\TextInput::make('total')
-                    ->required()
-                    ->numeric()
-                    ->default(0.00)
-                    ->disabled()
-                    ->dehydrated(false)
-                    ->hiddenOn('create')
-                    ->columnSpanFull(),
-                Forms\Components\Fieldset::make('Location')
-                    ->label(__('message.Location'))
-                    ->schema([
-                        Forms\Components\View::make('filament.components.map-picker')
-                            ->live()
-                            ->afterStateUpdated(function ($state, $set) {
-                                $set('latitude', $state['latitude']);
-                                $set('longitude', $state['longitude']);
-                            })
-                            ->viewData([
-                                'latitude' => fn($get) => $get('latitude'),
-                                'longitude' => fn($get) => $get('longitude'),
-                            ])
-                            ->columnSpanFull(),
-
-                        Forms\Components\TextInput::make('latitude')
-                            ->required()
-                            ->hidden()
-                            ->live(),
-
-                        Forms\Components\TextInput::make('longitude')
-                            ->required()
-                            ->hidden()
-                            ->live(),
-                    ])
             ]);
     }
 
@@ -203,27 +101,79 @@ class OrderResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('deliveryman_id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('status'),
-                Tables\Columns\TextColumn::make('payment_method'),
-                Tables\Columns\TextColumn::make('payment_status'),
-                Tables\Columns\TextColumn::make('address')
+                Tables\Columns\TextColumn::make('deliveryman.name')
+                    ->visible(fn() => Setting::where('key', 'deliveryman')->value('value') === '1')
+                    ->label(__('message.Deliveryman'))
+                    ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('latitude')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('longitude')
-                    ->numeric()
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('status')
+                    ->label(__('message.Status'))
+
+                    ->color(fn(string $state): string => match ($state) {
+                        'pending' => 'warning',
+                        'confirmed' => 'info',
+                        'preparing' => 'primary',
+                        'ready' => 'success',
+                        'on_delivery' => 'purple',
+                        'delivered' => 'success',
+                        'canceled' => 'danger',
+                        default => 'gray'
+                    })
+                    ->formatStateUsing(function (string $state) {
+                        return __('message.' . $state);
+                    })
+                    ->badge()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('payment_method')
+                    ->label(__('message.Payment Method'))
+                    ->color(fn(string $state): string => match ($state) {
+                        'cash' => 'info',
+                        'online' => 'success',
+                        default => 'gray'
+                    })
+                    ->formatStateUsing(function (string $state) {
+                        return __('message.' . Str::ucfirst($state));
+                    })
+                    ->badge()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('payment_status')
+                    ->label(__('message.Payment Status'))
+                    ->color(fn(string $state): string => match ($state) {
+                        'paid' => 'success',
+                        'unpaid' => 'danger',
+                        default => 'gray'
+                    })
+                    ->formatStateUsing(function (string $state) {
+                        return __('message.' . Str::ucfirst($state));
+                    })
+                    ->badge()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('order_type')
+                    ->label(__('message.Order Type'))
+                    ->color(fn(string $state): string => match ($state) {
+                        'online' => 'success',
+                        'pos' => 'primary',
+                        default => 'gray'
+                    })
+                    ->formatStateUsing(function (string $state) {
+                        return __('message.' . Str::ucfirst($state));
+                    })
+                    ->badge()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('address')
+                    ->label(__('message.Address'))
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('total')
+                    ->label(__('message.Total Price'))
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('coupon_id')
-                    ->numeric()
+                Tables\Columns\TextColumn::make('order.coupon.code')
+                    ->label(__('message.Coupon'))
+                    ->searchable()
+                    ->default('-')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('discount')
+                    ->label(__('message.Discount'))
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
@@ -234,18 +184,61 @@ class OrderResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('city_id')
-                    ->numeric()
+                Tables\Columns\TextColumn::make(app()->getLocale() == 'ar' ? 'city.name_ar' : 'city.name_en')
+                    ->label(__('message.City'))
+                    ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('area_id')
-                    ->numeric()
+                Tables\Columns\TextColumn::make(app()->getLocale() == 'ar' ? 'area.name_ar' : 'area.name_en')
+                    ->label(__('message.Area'))
+                    ->visible(fn() => Setting::where('key', 'deliveryman')
+                        ->value('value') === '1' && Setting::where('key', 'delivery_fee_type')
+                        ->value('value') === 'by_area')
+                    ->searchable()
                     ->sortable(),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('status')
+                    ->label(__('message.Status'))
+                    ->options(function () {
+                        $statuses = [
+                            OrderStatus::PENDING->value => __('message.Pending'),
+                            OrderStatus::CONFIRMED->value => __('message.Confirmed'),
+                            OrderStatus::PREPARING->value => __('message.Preparing'),
+                            OrderStatus::READY->value => __('message.Ready'),
+                        ];
+                        if (Setting::where('key', 'deliveryman')->value('value') === '1') {
+                            $statuses += [
+                                OrderStatus::ONDELIVERY->value => __('message.On Delivery'),
+                                OrderStatus::DELIVERED->value => __('message.Delivered'),
+                            ];
+                        }
+                        $statuses += [
+                            OrderStatus::CANCELED->value => __('message.Canceled'),
+                        ];
+                        return $statuses;
+                    }),
+                Tables\Filters\SelectFilter::make('payment_status')
+                    ->label(__('message.Payment Status'))
+                    ->options([
+                        'paid' => __('message.Paid'),
+                        'unpaid' => __('message.Unpaid'),
+                    ]),
+                Tables\Filters\SelectFilter::make('payment_method')
+                    ->label(__('message.Payment Method'))
+                    ->options([
+                        'cash' => __('message.Cash'),
+                        'online' => __('message.Online'),
+                    ]),
+                Tables\Filters\SelectFilter::make('order_type')
+                    ->label(__('message.Order Type'))
+                    ->options([
+                        'online' => __('message.Online'),
+                        'pos' => __('message.POS'),
+                    ]),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -257,7 +250,7 @@ class OrderResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\OrderDetailsRelationManager::class,
         ];
     }
 
@@ -265,8 +258,15 @@ class OrderResource extends Resource
     {
         return [
             'index' => Pages\ListOrders::route('/'),
-            'create' => Pages\CreateOrder::route('/create'),
             'edit' => Pages\EditOrder::route('/{record}/edit'),
         ];
+    }
+    public static function canCreate(): bool
+    {
+        return false;
+    }
+    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return false;
     }
 }

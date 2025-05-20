@@ -7,6 +7,7 @@ use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use App\Models\Setting;
+use Cheesegrits\FilamentGoogleMaps\Fields\Map;
 
 class DeliverySettings extends Page
 {
@@ -45,6 +46,8 @@ class DeliverySettings extends Page
             'delivery_fee_type' => Setting::where('key', 'delivery_fee_type')->first()?->value,
             'delivery_fee_fixed' => Setting::where('key', 'delivery_fee_fixed')->first()?->value,
             'delivery_fee_per_km' => Setting::where('key', 'delivery_fee_per_km')->first()?->value,
+            'latitude' => Setting::where('key', 'latitude')->first()?->value,
+            'longitude' => Setting::where('key', 'longitude')->first()?->value,
         ]);
     }
 
@@ -73,6 +76,7 @@ class DeliverySettings extends Page
 
                         Components\TextInput::make('delivery_fee_fixed')
                             ->label(__('message.fixed_delivery_fee'))
+                            ->minValue(0)
                             ->numeric()
                             ->required()
                             ->visible(fn($get) =>
@@ -81,10 +85,42 @@ class DeliverySettings extends Page
                         Components\TextInput::make('delivery_fee_per_km')
                             ->label(__('message.per_km_delivery_fee'))
                             ->numeric()
+                            ->minValue(0)
                             ->required()
                             ->visible(fn($get) =>
                             $get('deliveryman') && $get('delivery_fee_type') === 'per_km'),
-                    ])
+                        Components\TextInput::make('latitude')
+                            ->live()
+                            ->hidden()
+                            ->dehydrated(true),
+                        Components\TextInput::make('longitude')
+                            ->live()
+                            ->hidden()
+                            ->dehydrated(true),
+                        Map::make('location')
+                            ->label(__('message.location'))
+                            ->mapControls([
+                                'mapTypeControl'    => true,
+                                'scaleControl'      => true,
+                                'streetViewControl' => true,
+                            ])
+                            ->clickable()
+                            ->defaultLocation([30.0444, 31.2357])
+                            ->required()
+                            ->visible(fn($get) => $get('deliveryman') && $get('delivery_fee_type') === 'per_km')
+                            ->reactive()
+                            ->afterStateUpdated(function ($state, callable $get, callable $set) {
+                                $set('latitude', $state['lat']);
+                                $set('longitude', $state['lng']);
+                            })
+                            ->afterStateHydrated(function (callable $get, callable $set) {
+                                $lat = $get('latitude');
+                                $lng = $get('longitude');
+                                if ($lat && $lng) {
+                                    $set('location', ['lat' => (float) $lat, 'lng' => (float) $lng]);
+                                }
+                            })
+                    ]),
             ])
             ->statePath('data');
     }
@@ -92,13 +128,20 @@ class DeliverySettings extends Page
     public function save(): void
     {
         $data = $this->form->getState();
+        if (isset($data['location']) && $data['location']) {
+            $data['latitude'] = $data['location']['lat'];
+            $data['longitude'] = $data['location']['lng'];
+            unset($data['location']);
+        }
 
         if (!$data['deliveryman']) {
             Setting::whereIn('key', [
                 'deliveryman',
                 'delivery_fee_type',
                 'delivery_fee_fixed',
-                'delivery_fee_per_km'
+                'delivery_fee_per_km',
+                'latitude',
+                'longitude',
             ])->update(['value' => null]);
 
             $this->form->fill([
@@ -106,9 +149,11 @@ class DeliverySettings extends Page
                 'delivery_fee_type' => null,
                 'delivery_fee_fixed' => null,
                 'delivery_fee_per_km' => null,
+                'latitude' => null,
+                'longitude' => null,
             ]);
         } else {
-            foreach ($this->form->getState() as $key => $value) {
+            foreach ($data as $key => $value) {
                 Setting::updateOrCreate(['key' => $key], ['value' => $value]);
             }
         }

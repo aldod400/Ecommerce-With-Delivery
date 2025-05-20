@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('deliveryman_id')->nullable()->references('id')->on('users')->nullOnDelete();
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->enum('status', [
                 'pending',
@@ -29,14 +28,19 @@ return new class extends Migration
             $table->enum('payment_status', ['paid', 'unpaid'])->default('unpaid');
 
             $table->string('address')->nullable();
-            $table->decimal('latitude', 10, 7)->nullable();
-            $table->decimal('longitude', 10, 7)->nullable();
-
+            $table->string('latitude')->nullable();
+            $table->string('longitude')->nullable();
+            $table->decimal('subtotal', 10, 2);
             $table->decimal('total', 10, 2)->default(0)->nullable();
 
             $table->text('notes')->nullable();
+            $table->enum('order_type', ['online', 'pos'])->default('online');
             $table->foreignId('coupon_id')->nullable()->constrained('coupons')->nullOnDelete();
             $table->decimal('discount', 8, 2)->default(0);
+            $table->foreignId('city_id')->nullable()->constrained('cities')->nullOnDelete();
+            $table->foreignId('area_id')->nullable()->constrained('areas')->nullOnDelete();
+            $table->foreignId('deliveryman_id')->nullable()->references('id')->on('users')->nullOnDelete();
+            $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
         });
     }

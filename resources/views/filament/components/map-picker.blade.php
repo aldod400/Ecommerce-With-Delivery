@@ -73,5 +73,6 @@
                 marker.setMap(map);
             }
         });
+
     });
 </script>
