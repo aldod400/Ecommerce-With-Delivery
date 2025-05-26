@@ -41,7 +41,6 @@ class ProductAttributesRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                // 1) اختيار السمة
                 Forms\Components\Select::make('attribute_id')
                     ->label(__('message.Attribute'))
                     ->options(
@@ -52,9 +51,7 @@ class ProductAttributesRelationManager extends RelationManager
                             )
                     )
                     ->reactive()
-                    // بعد ما يحمل الـ record في التعديل، نعبّي الـ state من العلاقة
                     ->afterStateHydrated(function (callable $set, $record) {
-                        // $record هنا هو كائن ProductAttributeValue
                         if (! $record) {
                             return;
                         }
@@ -63,14 +60,11 @@ class ProductAttributesRelationManager extends RelationManager
                             optional($record->attributeValue)->attribute_id
                         );
                     })
-                    // لو غيّر المستخدم السمة، لازم نفلتر القيم من جديد
                     ->afterStateUpdated(fn(callable $set) => $set('attribute_value_id', null))
                     ->required()
                     ->searchable()
-                    // علشان يعرض الاسم مش الـ ID
                     ->getOptionLabelUsing(fn($value) => Attribute::find($value)?->{app()->getLocale() === 'ar' ? 'name_ar' : 'name_en'}),
 
-                // 2) اختيار قيمة السمة
                 Forms\Components\Select::make('attribute_value_id')
                     ->label(__('message.Attribute Value'))
                     ->options(function (callable $get) {
@@ -82,10 +76,7 @@ class ProductAttributesRelationManager extends RelationManager
                         return AttributeValue::where('attribute_id', $attributeId)
                             ->pluck('value', 'id');
                     })
-                    // بعد التحميل، يترك القيمة المحفوظة لو موجودة
                     ->afterStateHydrated(function (callable $set, $state, $record) {
-                        // $state هنا هو attribute_value_id لو النموذج جديد أو فارغ
-                        // أما في التعديل فـ $state يكون null في بعض الحالات، فنعبّيه من الـ record
                         $set(
                             'attribute_value_id',
                             $state ?? optional($record)->attribute_value_id
@@ -94,11 +85,7 @@ class ProductAttributesRelationManager extends RelationManager
                     ->required()
                     ->searchable()
                     ->getOptionLabelUsing(fn($value) => AttributeValue::find($value)?->value)
-                    ->unique(
-                        ProductAttributeValueModel::class,
-                        'attribute_value_id',
-                        fn($record) => $record?->id
-                    ),
+                    ->unique(table: 'product_attribute_values', column: 'attribute_value_id', ignoreRecord: true),
             ]);
     }
 
@@ -115,6 +102,11 @@ class ProductAttributesRelationManager extends RelationManager
                     ->label(__('message.Attribute Value'))
                     ->sortable()
                     ->searchable(),
+                Tables\Columns\TextColumn::make('attributeValue.price')
+                    ->label(__('message.Price'))
+                    ->sortable()
+                    ->searchable(),
+
             ])
             ->filters([
                 //

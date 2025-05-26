@@ -41,8 +41,8 @@ class UpdadeProfileRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'email' => 'required_without:phone|string|email:dns|max:255|unique:users,email,' . auth('api')->user()->id,
-            'phone' => 'required_without:email|string|unique:users,phone,' . auth('api')->user()->id . '|regex:/^01\d{9}$/',
+            'email' => 'required_without:phone|string|email:dns|max:255|unique:users,email,' . auth('api')->id(),
+            'phone' => 'required_without:email|string|regex:/^01\d{9}$/|unique:users,phone,' . auth('api')->id(),
             'image' => 'nullable|image|max:2048',
             'fcm_token' => 'nullable|string',
             'password' => 'nullable|string|min:8|confirmed|regex:/[A-Za-z]/|regex:/[0-9]/',

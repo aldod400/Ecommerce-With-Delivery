@@ -66,7 +66,8 @@ class CategoryResource extends Resource
                     ->label(__('message.Image'))
                     ->directory('categories')
                     ->required()
-                    ->image(),
+                    ->image()
+                    ->columnSpanFull(),
                 Forms\Components\Select::make('parent_id')
                     ->label(__('message.Parent Category'))
                     ->relationship(
@@ -80,7 +81,12 @@ class CategoryResource extends Resource
                             ->when($record, fn($q) => $q->where('id', '!=', $record->id)) // Only apply this condition if $record is not null
                     )
                     ->nullable()
-                    ->searchable(),
+                    ->searchable()
+                    ->columnSpanFull(),
+                Forms\Components\Toggle::make('popular')
+                    ->label(__('message.Popular'))
+                    ->required()
+                    ->columnSpanFull(),
             ]);
     }
 

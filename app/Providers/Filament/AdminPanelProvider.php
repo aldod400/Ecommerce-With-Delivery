@@ -74,7 +74,7 @@ class AdminPanelProvider extends PanelProvider
             ->profile()
             ->sidebarCollapsibleOnDesktop()
             ->globalSearch(false)
-            ->brandLogo(asset('images/default.png'))
+            ->brandLogo(asset('storage/images/default.png'))
             ->brandLogoHeight("50px");
     }
 }

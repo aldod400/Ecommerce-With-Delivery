@@ -20,6 +20,11 @@ class Order extends Model
         'notes',
         'city_id',
         'area_id',
+        'subtotal',
+        'order_type',
+        'coupon_id',
+        'discount',
+        'created_by',
     ];
     public function user()
     {
@@ -49,5 +54,9 @@ class Order extends Model
     public function orderDetails()
     {
         return $this->hasMany(OrderDetail::class);
+    }
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

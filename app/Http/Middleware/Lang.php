@@ -15,10 +15,8 @@ class Lang
      */
     public function handle(Request $request, Closure $next): Response
     {
-        app()->setLocale('ar');
-
-        if (isset($request->lang) && $request->lang == 'en')
-            app()->setLocale('en');
+        if (isset($request->lang) && $request->lang == 'ar')
+            app()->setLocale('ar');
 
         return $next($request);
     }

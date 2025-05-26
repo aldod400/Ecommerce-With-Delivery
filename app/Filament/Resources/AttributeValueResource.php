@@ -52,6 +52,10 @@ class AttributeValueResource extends Resource
                     ->required()
                     ->label(__('message.Attribute'))
                     ->columnSpanFull(),
+                Forms\Components\TextInput::make('price')
+                    ->label(__('message.Price'))
+                    ->columnSpanFull()
+                    ->numeric(),
             ]);
     }
 
@@ -66,14 +70,17 @@ class AttributeValueResource extends Resource
                     ->label(__('message.Attribute'))
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('price')
+                    ->label(__('message.Price'))
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(true),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(true),
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //

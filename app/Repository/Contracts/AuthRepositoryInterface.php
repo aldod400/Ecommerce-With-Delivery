@@ -9,4 +9,5 @@ interface AuthRepositoryInterface
 
     public function createUser(array $data);
     public function updateUserById(string $id, array $data);
+    public function deleteUserById(string $id);
 }

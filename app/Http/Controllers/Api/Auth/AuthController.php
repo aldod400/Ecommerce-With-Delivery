@@ -62,4 +62,9 @@ class AuthController extends Controller
         ]);
         return Response::api(__('message.Success'), 200, true, null, $result);
     }
+    public function deleteProfile()
+    {
+        $result = $this->authService->deleteProfile();
+        return Response::api(__('message.Success'), 200, true, null);
+    }
 }

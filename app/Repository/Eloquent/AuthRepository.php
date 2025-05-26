@@ -29,4 +29,10 @@ class AuthRepository implements AuthRepositoryInterface
         $user->update($data);
         return $user;
     }
+    public function deleteUserById(string $id)
+    {
+        $user = User::findOrFail($id);
+        $user->delete();
+        return $user;
+    }
 }

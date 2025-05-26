@@ -100,7 +100,7 @@ class AuthService implements AuthServiceInterface
         if ($data['fcm_token'])
             $this->updateFcmToken($data['fcm_token']);
 
-        return $this->authRepository->updateUserById($user, $data);
+        return $this->authRepository->updateUserById($user->id, $data);
     }
 
     public function updateFcmToken(string $fcmToken)
@@ -110,5 +110,13 @@ class AuthService implements AuthServiceInterface
         $data = ['fcm_token' => $fcmToken];
 
         return $this->authRepository->updateUserById($userId, $data);
+    }
+    public function deleteProfile(){
+        $user = auth('api')->user();
+        if (File::exists($user->image)) {
+            File::delete($user->image);
+        }
+        $this->authRepository->deleteUserById($user->id);
+        return true;
     }
 }

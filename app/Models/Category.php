@@ -11,6 +11,7 @@ class Category extends Model
         'name_en',
         'slug',
         'image',
+        'popular',
         'parent_id',
     ];
 

@@ -9,9 +9,21 @@ use App\Services\Implementations\ConfigService;
 use Illuminate\Http\Response;
 use Illuminate\Support\ServiceProvider;
 use App\Repository\Contracts\AuthRepositoryInterface;
+use App\Repository\Contracts\BannerRepositoryInterface;
+use App\Repository\Contracts\CategoryRepositoryInterface;
+use App\Repository\Contracts\ProductRepositoryInterface;
 use App\Repository\Eloquent\AuthRepository;
+use App\Repository\Eloquent\BannerRepository;
+use App\Repository\Eloquent\CategoryRepository;
+use App\Repository\Eloquent\ProductRepository;
 use App\Services\Contracts\AuthServiceInterface;
+use App\Services\Contracts\BannerServiceInterface;
+use App\Services\Contracts\CategoryServiceInterface;
+use App\Services\Contracts\ProductServiceInterface;
 use App\Services\Implementations\AuthService;
+use App\Services\Implementations\BannerService;
+use App\Services\Implementations\CategoryService;
+use App\Services\Implementations\ProductService;
 use App\Strategies\Contracts\Login\LoginStrategyInterface;
 use App\Strategies\Implementations\Login\EmailLoginStrategy;
 use App\Strategies\Implementations\Login\PhoneLoginStrategy;
@@ -27,6 +39,12 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(ConfigRepositoryInterface::class, ConfigRepository::class);
         $this->app->bind(AuthRepositoryInterface::class, AuthRepository::class);
         $this->app->bind(AuthServiceInterface::class, AuthService::class);
+        $this->app->bind(CategoryServiceInterface::class, CategoryService::class);
+        $this->app->bind(CategoryRepositoryInterface::class, CategoryRepository::class);
+        $this->app->bind(BannerRepositoryInterface::class, BannerRepository::class);
+        $this->app->bind(BannerServiceInterface::class, BannerService::class);
+        $this->app->bind(ProductRepositoryInterface::class, ProductRepository::class);
+        $this->app->bind(ProductServiceInterface::class, ProductService::class);
 
         $this->app->bind(AuthServiceInterface::class, function ($app) {
             return new AuthService(

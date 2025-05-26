@@ -9,6 +9,7 @@ class AttributeValue extends Model
     protected $fillable = [
         'attribute_id',
         'value',
+        'price',
     ];
 
     public function attribute()
