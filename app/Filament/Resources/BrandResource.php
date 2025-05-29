@@ -78,12 +78,12 @@ class BrandResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->alignCenter()
-                    ->toggleable(true),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->alignCenter()
-                    ->toggleable(true),
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //

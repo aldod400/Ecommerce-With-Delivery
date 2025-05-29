@@ -21,4 +21,8 @@ class Cart extends Model
     {
         return $this->belongsTo(Product::class);
     }
+    public function attributeValues()
+    {
+        return $this->belongsToMany(AttributeValue::class, 'cart_attribute_values', 'cart_id', 'attribute_value_id');
+    }
 }

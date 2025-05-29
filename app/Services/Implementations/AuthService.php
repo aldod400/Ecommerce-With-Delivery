@@ -58,7 +58,7 @@ class AuthService implements AuthServiceInterface
         if ($data['image'])
             $data['image'] = ImageHelpers::addImage($data['image'], 'users');
 
-        $data['image'] = $data['image'] ?? 'images/default.png';
+        $data['image'] = $data['image'] ?? 'storage/images/default.png';
 
         $data['password'] = Hash::make($data['password']);
 
@@ -111,7 +111,8 @@ class AuthService implements AuthServiceInterface
 
         return $this->authRepository->updateUserById($userId, $data);
     }
-    public function deleteProfile(){
+    public function deleteProfile()
+    {
         $user = auth('api')->user();
         if (File::exists($user->image)) {
             File::delete($user->image);

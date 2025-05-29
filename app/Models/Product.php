@@ -22,6 +22,15 @@ class Product extends Model
     protected $casts = [
         'status' => ProductStatus::class,
     ];
+    protected $appends = [
+        'rate',
+    ];
+
+    public function getRateAttribute()
+    {
+        return (float) $this->hasMany(Review::class)->avg('rating') ?? 0;
+    }
+
     public function category()
     {
         return $this->belongsTo(Category::class);
@@ -37,11 +46,15 @@ class Product extends Model
     public function attribute()
     {
         return $this->belongsToMany(Attribute::class, 'product_attribute_values')
-            ->withPivot('id', 'attribute_value_id', 'product_id');
+        ->withPivot('id', 'attribute_value_id', 'product_id');
     }
 
     public function productAttributes()
     {
-        return $this->hasMany(ProductAttributeValue::class);
+        return $this->hasMany(ProductAttributeValue::class)
+            ->with([
+                'attributeValue:id,attribute_id,value,price',
+                'attributeValue.attribute:id,' . (app()->getLocale() === 'ar' ? 'name_ar' : 'name_en') . ' as name'
+            ]);
     }
 }

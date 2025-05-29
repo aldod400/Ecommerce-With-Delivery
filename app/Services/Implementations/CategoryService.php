@@ -2,6 +2,7 @@
 
 namespace App\Services\Implementations;
 
+use App\Helpers\CategoryHelpers;
 use App\Repository\Contracts\CategoryRepositoryInterface;
 use App\Services\Contracts\CategoryServiceInterface;
 
@@ -12,9 +13,16 @@ class CategoryService implements CategoryServiceInterface
     {
         $this->categoryRepo = $categoryRepo;
     }
-    public function getCategories(int $perPage, array $columns)
+    public function getParentCategoriesPaginated(int $perPage, array $columns)
     {
-        return $this->categoryRepo->paginate($perPage, $columns);
+        return $this->categoryRepo->getParentCategoriesPaginated($perPage, $columns);
+    }
+
+    public function getCategoryWithAllChildren(int $id)
+    {
+        $categories = $this->categoryRepo->find($id);
+        $categories = CategoryHelpers::loadChildren(collect([$categories]));
+        return $categories->first();
     }
     public function getCategoryById(string $id)
     {

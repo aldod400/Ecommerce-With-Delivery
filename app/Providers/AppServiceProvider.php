@@ -10,18 +10,26 @@ use Illuminate\Http\Response;
 use Illuminate\Support\ServiceProvider;
 use App\Repository\Contracts\AuthRepositoryInterface;
 use App\Repository\Contracts\BannerRepositoryInterface;
+use App\Repository\Contracts\BrandRepositoryInterface;
+use App\Repository\Contracts\CartRepositoryInterface;
 use App\Repository\Contracts\CategoryRepositoryInterface;
 use App\Repository\Contracts\ProductRepositoryInterface;
 use App\Repository\Eloquent\AuthRepository;
 use App\Repository\Eloquent\BannerRepository;
+use App\Repository\Eloquent\BrandRepository;
+use App\Repository\Eloquent\CartRepository;
 use App\Repository\Eloquent\CategoryRepository;
 use App\Repository\Eloquent\ProductRepository;
 use App\Services\Contracts\AuthServiceInterface;
 use App\Services\Contracts\BannerServiceInterface;
+use App\Services\Contracts\BrandServiceInterface;
+use App\Services\Contracts\CartServiceInterface;
 use App\Services\Contracts\CategoryServiceInterface;
 use App\Services\Contracts\ProductServiceInterface;
 use App\Services\Implementations\AuthService;
 use App\Services\Implementations\BannerService;
+use App\Services\Implementations\BrandService;
+use App\Services\Implementations\CartService;
 use App\Services\Implementations\CategoryService;
 use App\Services\Implementations\ProductService;
 use App\Strategies\Contracts\Login\LoginStrategyInterface;
@@ -45,6 +53,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(BannerServiceInterface::class, BannerService::class);
         $this->app->bind(ProductRepositoryInterface::class, ProductRepository::class);
         $this->app->bind(ProductServiceInterface::class, ProductService::class);
+        $this->app->bind(BrandRepositoryInterface::class, BrandRepository::class);
+        $this->app->bind(BrandServiceInterface::class, BrandService::class);
+        $this->app->bind(CartRepositoryInterface::class, CartRepository::class);
+        $this->app->bind(CartServiceInterface::class, CartService::class);
 
         $this->app->bind(AuthServiceInterface::class, function ($app) {
             return new AuthService(

@@ -19,4 +19,16 @@ class Category extends Model
     {
         return $this->belongsTo(Category::class, 'parent_id');
     }
+
+    public function children()
+    {
+        return $this->hasMany(Category::class, 'parent_id')->select(
+            'id',
+            app()->getLocale() == 'ar' ? 'name_ar as name' : 'name_en as name',
+            'slug',
+            'image',
+            'popular',
+            'parent_id',
+        );
+    }
 }

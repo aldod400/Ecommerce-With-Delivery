@@ -2,15 +2,22 @@
 
 namespace App\Services\Implementations;
 
+use App\Helpers\CategoryHelpers;
+use App\Repository\Contracts\CategoryRepositoryInterface;
 use App\Repository\Contracts\ProductRepositoryInterface;
+use App\Services\Contracts\CategoryServiceInterface;
 use App\Services\Contracts\ProductServiceInterface;
 
 class ProductService implements ProductServiceInterface
 {
     protected $productRepo;
-    public function __construct(ProductRepositoryInterface $productRepo)
-    {
+    protected $categoryRepo;
+    public function __construct(
+        ProductRepositoryInterface $productRepo,
+        CategoryRepositoryInterface $categoryRepo
+    ) {
         $this->productRepo = $productRepo;
+        $this->categoryRepo = $categoryRepo;
     }
     public function getProductById(int $id)
     {
@@ -24,6 +31,19 @@ class ProductService implements ProductServiceInterface
     {
         $products = $this->productRepo->latest($take);
 
+        $products->map(function ($product) {
+            $product->image = optional($product->images->first())->image;
+            unset($product->images);
+            return $product;
+        });
+        return $products;
+    }
+    public function getProductsFromCategoryAndChildren(int $categoryId, int $perPage)
+    {
+        $category = $this->categoryRepo->find($categoryId);
+        $categories = CategoryHelpers::loadChildren(collect([$category]));
+        $categoryIds = CategoryHelpers::collectCategoryIds($categories);
+        $products = $this->productRepo->getProductsByCategoryIds($categoryIds, $perPage);
         $products->map(function ($product) {
             $product->image = optional($product->images->first())->image;
             unset($product->images);

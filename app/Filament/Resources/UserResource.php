@@ -75,9 +75,9 @@ class UserResource extends Resource
                     ->validationAttribute(__('message.Phone')),
                 Forms\Components\FileUpload::make('image')
                     ->label(__('message.Image'))
-                    ->default('images/default.png')
+                    ->default('storage/images/default.png')
                     ->dehydrated(fn($state) => $state !== null)
-                    ->dehydrateStateUsing(fn($state) => $state ?: 'images/default.png')
+                    ->dehydrateStateUsing(fn($state) => $state ?: 'storage/images/default.png')
                     ->directory('users')
                     ->image(),
                 Forms\Components\Select::make('status')
@@ -108,7 +108,7 @@ class UserResource extends Resource
                     ->label(__('message.Image'))
                     ->disk('public')
                     ->circular()
-                    ->defaultImageUrl(asset('images/default.png')),
+                    ->defaultImageUrl(asset('storage/images/default.png')),
                 Tables\Columns\TextColumn::make('name')
                     ->label(__('message.Name'))
                     ->searchable(),
