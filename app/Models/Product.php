@@ -46,15 +46,15 @@ class Product extends Model
     public function attribute()
     {
         return $this->belongsToMany(Attribute::class, 'product_attribute_values')
-        ->withPivot('id', 'attribute_value_id', 'product_id');
+            ->withPivot('id', 'attribute_value_id', 'product_id', 'price');
     }
 
     public function productAttributes()
     {
         return $this->hasMany(ProductAttributeValue::class)
             ->with([
-                'attributeValue:id,attribute_id,value,price',
-                'attributeValue.attribute:id,' . (app()->getLocale() === 'ar' ? 'name_ar' : 'name_en') . ' as name'
+                'attributeValue:id,attribute_id,value',
+                'attributeValue.attribute:id,' . (app()->getLocale() === 'ar' ? 'name_ar' : 'name_en') . ' as name',
             ]);
     }
 }

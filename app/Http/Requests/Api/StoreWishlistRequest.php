@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Api\Cart;
+namespace App\Http\Requests\Api;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
@@ -8,9 +8,9 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Response;
 
 /**
- * @property int $quantity
+ * @property string $product_id
  */
-class updateCartRequest extends FormRequest
+class StoreWishlistRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -19,12 +19,14 @@ class updateCartRequest extends FormRequest
     {
         return true;
     }
+
     public function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(
             Response::api($validator->errors()->first(), 400, false, 400)
         );
     }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -33,7 +35,7 @@ class updateCartRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'quantity' => 'required|integer|min:1',
+            'product_id' => 'required|integer|exists:products,id'
         ];
     }
 }

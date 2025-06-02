@@ -11,10 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cart_attribute_values', function (Blueprint $table) {
+        Schema::create('cart_product_attribute_values', function (Blueprint $table) {
             $table->id();
             $table->foreignId('cart_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('attribute_value_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('product_attribute_value_id')
+                ->constrained('product_attribute_values')->cascadeOnDelete();
             $table->timestamps();
         });
     }

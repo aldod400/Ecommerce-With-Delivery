@@ -36,12 +36,13 @@ class CartService implements CartServiceInterface
     {
         $carts = $this->cartRepo->getUserCart(auth('api')->user()->id);
         $productId = $data['product_id'];
-        $attributeValueIds = isset($data['attribute_value_ids']) ? $data['attribute_value_ids'] : [];
+        $productAttributeValueIds = isset($data['product_attribute_value_ids'])
+            ? $data['product_attribute_value_ids'] : [];
 
         foreach ($carts as $cart) {
             if ($cart->product_id == $productId) {
-                $existingIds = collect($cart->attributeValues)->pluck('id')->sort()->values()->toArray();
-                $newIds = collect($attributeValueIds)->sort()->values()->toArray();
+                $existingIds = collect($cart->productAttributeValues)->pluck('id')->sort()->values()->toArray();
+                $newIds = collect($productAttributeValueIds)->sort()->values()->toArray();
                 if ($existingIds === $newIds) {
                     return [
                         'success' => false,
@@ -57,21 +58,20 @@ class CartService implements CartServiceInterface
                 'message' => __('message.Product quantity is not enough')
             ];
 
-        if (!isset($data['attribute_value_ids']) && $product->productAttributes->count() > 0)
+        if (!isset($data['product_attribute_value_ids']) && $product->productAttributes->count() > 0)
             return [
                 'success' => false,
                 'message' => __('message.Attribute values is required')
             ];
-        if (isset($data['attribute_value_ids'])) {
-            $productAttributeValueIds = $product->productAttributes->pluck('attribute_value_id')->toArray();
-            $allExist = empty(array_diff($data['attribute_value_ids'], $productAttributeValueIds));
-
+        if (isset($data['product_attribute_value_ids'])) {
+            $allExist = collect($data['product_attribute_value_ids'])->every(function ($attributeValueId) use ($product) {
+                return $product->productAttributes->contains('id', $attributeValueId);
+            });
             if (!$allExist)
                 return [
                     'success' => false,
                     'message' => __('message.Attribute values is not valid to this Product')
                 ];
-            $AttributeValues = $data['attribute_value_ids'];
         }
         $Cartdata = [
             'user_id' => auth('api')->user()->id,
@@ -82,9 +82,9 @@ class CartService implements CartServiceInterface
         DB::beginTransaction();
         try {
             $cart = $this->cartRepo->create($Cartdata);
-            if (isset($data['attribute_value_ids']))
-                foreach ($AttributeValues as $attribute)
-                    $cart->attributeValues()->sync($attribute);
+            if (isset($data['product_attribute_value_ids']))
+                $cart->ProductAttributeValues()
+                    ->sync($data['product_attribute_value_ids']);
 
             DB::commit();
         } catch (\Exception $e) {

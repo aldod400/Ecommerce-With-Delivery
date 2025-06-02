@@ -27,9 +27,6 @@ return new class extends Migration
             $table->enum('payment_method', ['cash', 'online'])->default('cash');
             $table->enum('payment_status', ['paid', 'unpaid'])->default('unpaid');
 
-            $table->string('address')->nullable();
-            $table->string('latitude')->nullable();
-            $table->string('longitude')->nullable();
             $table->decimal('subtotal', 10, 2);
             $table->decimal('total', 10, 2)->default(0)->nullable();
 
@@ -37,7 +34,6 @@ return new class extends Migration
             $table->enum('order_type', ['online', 'pos'])->default('online');
             $table->foreignId('coupon_id')->nullable()->constrained('coupons')->nullOnDelete();
             $table->decimal('discount', 8, 2)->default(0);
-            $table->foreignId('city_id')->nullable()->constrained('cities')->nullOnDelete();
             $table->foreignId('area_id')->nullable()->constrained('areas')->nullOnDelete();
             $table->foreignId('deliveryman_id')->nullable()->references('id')->on('users')->nullOnDelete();
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();

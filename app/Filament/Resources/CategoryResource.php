@@ -82,6 +82,7 @@ class CategoryResource extends Resource
                     )
                     ->nullable()
                     ->searchable()
+                    ->preload()
                     ->columnSpanFull(),
                 Forms\Components\Toggle::make('popular')
                     ->label(__('message.Popular'))
@@ -112,6 +113,10 @@ class CategoryResource extends Resource
                     ->label(__('message.Parent Category'))
                     ->getStateUsing(fn($record) => (app()->getLocale() == 'ar' ? $record->parent?->name_ar : $record->parent?->name_en) ?? '-')
                     ->sortable()
+                    ->alignCenter(),
+                Tables\Columns\IconColumn::make('popular')
+                    ->label(__('message.Popular'))
+                    ->boolean()
                     ->alignCenter(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()

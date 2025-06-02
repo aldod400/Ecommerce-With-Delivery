@@ -227,4 +227,7 @@ return [
     'Attribute values is not valid to this Product' => 'القيم غير صالحة لهذا المنتج',
     'you are not authorized to update this cart' => 'ليس لديك صلاحية تحديث هذه السلة',
     'Product already in cart with selected options' => 'المنتج موجود بالفعل في السلة بالخيارات المحددة',
+    'you are not authorized to delete this wish list' => 'ليس لديك صلاحية حذف هذه قائمة الرغبات',
+    'Product already in wish list' => 'المنتج موجود بالفعل في قائمة الرغبات',
+    'Product not found in wish list' => 'المنتج غير موجود في قائمة الرغبات',
 ];

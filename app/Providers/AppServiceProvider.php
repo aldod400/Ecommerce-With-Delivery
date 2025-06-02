@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Repository\Contracts\AddressRepositoryInterface;
 use App\Repository\Contracts\ConfigRepositoryInterface;
 use App\Repository\Eloquent\ConfigRepository;
 use App\Services\Contracts\ConfigServiceInterface;
@@ -13,25 +14,34 @@ use App\Repository\Contracts\BannerRepositoryInterface;
 use App\Repository\Contracts\BrandRepositoryInterface;
 use App\Repository\Contracts\CartRepositoryInterface;
 use App\Repository\Contracts\CategoryRepositoryInterface;
+use App\Repository\Contracts\CityRepositoryInterface;
 use App\Repository\Contracts\ProductRepositoryInterface;
+use App\Repository\Contracts\WishlistRepositoryInterface;
+use App\Repository\Eloquent\AddressRepository;
 use App\Repository\Eloquent\AuthRepository;
 use App\Repository\Eloquent\BannerRepository;
 use App\Repository\Eloquent\BrandRepository;
 use App\Repository\Eloquent\CartRepository;
 use App\Repository\Eloquent\CategoryRepository;
+use App\Repository\Eloquent\CityRepository;
 use App\Repository\Eloquent\ProductRepository;
+use App\Repository\Eloquent\WishlistRepository;
+use App\Services\Contracts\AddressServiceInterface;
 use App\Services\Contracts\AuthServiceInterface;
 use App\Services\Contracts\BannerServiceInterface;
 use App\Services\Contracts\BrandServiceInterface;
 use App\Services\Contracts\CartServiceInterface;
 use App\Services\Contracts\CategoryServiceInterface;
 use App\Services\Contracts\ProductServiceInterface;
+use App\Services\Contracts\WishlistServiceInterface;
+use App\Services\Implementations\AddressService;
 use App\Services\Implementations\AuthService;
 use App\Services\Implementations\BannerService;
 use App\Services\Implementations\BrandService;
 use App\Services\Implementations\CartService;
 use App\Services\Implementations\CategoryService;
 use App\Services\Implementations\ProductService;
+use App\Services\Implementations\WishlistService;
 use App\Strategies\Contracts\Login\LoginStrategyInterface;
 use App\Strategies\Implementations\Login\EmailLoginStrategy;
 use App\Strategies\Implementations\Login\PhoneLoginStrategy;
@@ -57,6 +67,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(BrandServiceInterface::class, BrandService::class);
         $this->app->bind(CartRepositoryInterface::class, CartRepository::class);
         $this->app->bind(CartServiceInterface::class, CartService::class);
+        $this->app->bind(WishlistRepositoryInterface::class, WishlistRepository::class);
+        $this->app->bind(WishlistServiceInterface::class, WishlistService::class);
+        $this->app->bind(AddressRepositoryInterface::class, AddressRepository::class);
+        $this->app->bind(AddressServiceInterface::class, AddressService::class);
+        $this->app->bind(CityRepositoryInterface::class, CityRepository::class);
 
         $this->app->bind(AuthServiceInterface::class, function ($app) {
             return new AuthService(

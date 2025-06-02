@@ -13,7 +13,7 @@ class CartRepository implements CartRepositoryInterface
     }
     public function getUserCart(int $userId)
     {
-        return Cart::with(['attributeValues', 'product' => function ($query) {
+        return Cart::with(['ProductAttributeValues', 'product' => function ($query) {
             $query->with(['images' => function ($query) {
                 $query->take(1);
             }])->select(
@@ -28,7 +28,7 @@ class CartRepository implements CartRepositoryInterface
                 'category_id',
                 'brand_id'
             );
-        }, 'attributeValues.attribute' => function ($query) {
+        }, 'ProductAttributeValues.attributeValue.attribute' => function ($query) {
             $query->select('id', app()->getLocale() == 'ar' ? 'name_ar as name' : 'name_en as name');
         }])->where('user_id', $userId)->get();
     }

@@ -9,7 +9,6 @@ class AttributeValue extends Model
     protected $fillable = [
         'attribute_id',
         'value',
-        'price',
     ];
 
     public function attribute()
@@ -20,9 +19,5 @@ class AttributeValue extends Model
     public function AttributeValues()
     {
         return $this->hasMany(ProductAttributeValue::class);
-    }
-    public function cart()
-    {
-        return $this->belongsToMany(CartAttributeValue::class);
     }
 }

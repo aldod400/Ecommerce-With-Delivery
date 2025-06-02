@@ -1,11 +1,13 @@
 <?php
 
+use App\Http\Controllers\Api\AddressController;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ConfigController;
 use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\WishlistController;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => 'lang'], function () {
@@ -35,4 +37,20 @@ Route::group(['middleware' => 'lang'], function () {
         Route::get('/{id}', [ProductController::class, 'getProduct']);
     });
     Route::resource('carts', CartController::class)->middleware('auth:api');
+    Route::resource('addresses', AddressController::class, [
+        'only' => [
+            'index',
+            'store',
+            'update',
+            'destroy'
+        ]
+    ])->middleware('auth:api');
+
+    Route::resource('wishlists', WishlistController::class, [
+        'only' => [
+            'index',
+            'store',
+            'destroy'
+        ]
+    ])->middleware('auth:api');
 });

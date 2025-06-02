@@ -52,10 +52,6 @@ class AttributeValueResource extends Resource
                     ->required()
                     ->label(__('message.Attribute'))
                     ->columnSpanFull(),
-                Forms\Components\TextInput::make('price')
-                    ->label(__('message.Price'))
-                    ->columnSpanFull()
-                    ->numeric(),
             ]);
     }
 
@@ -69,9 +65,6 @@ class AttributeValueResource extends Resource
                 Tables\Columns\TextColumn::make(app()->getLocale() == 'ar' ? 'attribute.name_ar' : 'attribute.name_en')
                     ->label(__('message.Attribute'))
                     ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('price')
-                    ->label(__('message.Price'))
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()

@@ -11,8 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('attribute_values', function (Blueprint $table) {
-            $table->decimal('price', 8, 2)->default(0)->after('value');
+        Schema::table('orders', function (Blueprint $table) {
+            $table->foreignId('address_id')
+                ->nullable()
+                ->constrained('addresses')
+                ->nullOnDelete()
+                ->after('discount');
         });
     }
 
@@ -21,8 +25,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('attribute_values', function (Blueprint $table) {
-            //
+        Schema::table('orders', function (Blueprint $table) {
+            $table->dropColumn('address_id');
         });
     }
 };

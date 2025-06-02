@@ -39,9 +39,9 @@ class CartController extends Controller
     public function store(StoreCartRequest $request)
     {
         $result = $this->cartService->create([
-            'product_id'          => $request->product_id,
-            'quantity'            => $request->quantity,
-            'attribute_value_ids' => $request->attribute_value_ids,
+            'product_id'                  => $request->product_id,
+            'quantity'                    => $request->quantity,
+            'product_attribute_value_ids' => $request->product_attribute_value_ids,
         ]);
 
         if (!$result['success'])

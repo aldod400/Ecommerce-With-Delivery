@@ -15,6 +15,7 @@ use App\Models\ProductAttributeValue;
 use App\Models\Product;
 use App\Models\ProductAttributeValue as ProductAttributeValueModel;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Validation\Rule;
 
 class ProductAttributesRelationManager extends RelationManager
 {
@@ -83,9 +84,22 @@ class ProductAttributesRelationManager extends RelationManager
                         );
                     })
                     ->required()
+                    ->reactive()
                     ->searchable()
                     ->getOptionLabelUsing(fn($value) => AttributeValue::find($value)?->value)
-                    ->unique(table: 'product_attribute_values', column: 'attribute_value_id', ignoreRecord: true),
+                    ->rule(function (callable $get) {
+                        return Rule::unique('product_attribute_values', 'attribute_value_id')
+                            ->where('product_id', $this->getOwnerRecord()->id)
+                            ->ignore($get('id'));
+                    }),
+                Forms\Components\TextInput::make('price')
+                    ->label(__('message.Price'))
+                    ->numeric()
+                    ->required()
+                    ->hidden(function (callable $get) {
+                        return empty($get('attribute_value_id'));
+                    })
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -94,7 +108,7 @@ class ProductAttributesRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('value')
             ->columns([
-                Tables\Columns\TextColumn::make(app()->getLocale() == 'ar' ? 'attributeValue.attribute.name_ar' : 'attributeValue.attribute.name_en')
+                Tables\Columns\TextColumn::make('attributeValue.attribute.name')
                     ->label(__('message.Attribute'))
                     ->sortable()
                     ->searchable(),
@@ -102,7 +116,7 @@ class ProductAttributesRelationManager extends RelationManager
                     ->label(__('message.Attribute Value'))
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('attributeValue.price')
+                Tables\Columns\TextColumn::make('price')
                     ->label(__('message.Price'))
                     ->sortable()
                     ->searchable(),

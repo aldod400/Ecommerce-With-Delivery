@@ -4,18 +4,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class CartAttributeValue extends Model
+class CartProductAttributeValue extends Model
 {
     protected $fillable = [
         "cart_id",
-        "attribute_value_id",
+        "product_attribute_value_id",
     ];
     public function cart()
     {
         return $this->belongsTo(Cart::class);
     }
-    public function attributeValue()
+    public function productAttributeValue()
     {
-        return $this->belongsTo(AttributeValue::class);
+        return $this->belongsTo(ProductAttributeValue::class);
     }
 }

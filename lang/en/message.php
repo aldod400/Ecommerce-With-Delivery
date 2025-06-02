@@ -227,4 +227,7 @@ return [
     'Attribute values is not valid to this Product' => 'Attribute values is not valid to this Product',
     'you are not authorized to update this cart' => 'you are not authorized to update this cart',
     'Product already in cart with selected options' => 'Product already in cart with selected options',
+    'you are not authorized to delete this wish list' => 'you are not authorized to delete this wish list',
+    'Product already in wish list' => 'Product already in wish list',
+    'Product not found in wish list' => 'Product not found in wish list',
 ];

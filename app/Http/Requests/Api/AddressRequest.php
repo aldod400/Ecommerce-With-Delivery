@@ -1,16 +1,22 @@
 <?php
 
-namespace App\Http\Requests\Api\Cart;
+namespace App\Http\Requests\Api;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Response;
 
 /**
- * @property int $quantity
+ * @property string $name 
+ * @property string $address
+ * @property string $phone 
+ * @property float $lat
+ * @property float $lng
+ * @property bool $is_default
+ * @property int $city_id
  */
-class updateCartRequest extends FormRequest
+class AddressRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -33,7 +39,13 @@ class updateCartRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'quantity' => 'required|integer|min:1',
+            'name' => 'required|string|in:home,work,other',
+            'address' => 'required|string',
+            'phone' => 'required|string|regex:/^01\d{9}$/',
+            'lat' => 'required|numeric|between:-90,90',
+            'lng' => 'required|numeric|between:-180,180',
+            'is_default' => 'required|boolean',
+            'city_id' => 'required|exists:cities,id'
         ];
     }
 }

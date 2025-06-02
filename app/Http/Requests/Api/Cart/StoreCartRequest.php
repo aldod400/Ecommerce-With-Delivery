@@ -10,7 +10,7 @@ use Illuminate\Http\Response;
 /**
  * @property int $product_id
  * @property int $quantity
- * @property array $attribute_value_ids
+ * @property array $product_attribute_value_ids
  */
 class StoreCartRequest extends FormRequest
 {
@@ -35,10 +35,10 @@ class StoreCartRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'product_id'            => 'required|integer|exists:products,id',
-            'quantity'              => 'required|integer|min:1',
-            'attribute_value_ids'   => 'nullable|array',
-            'attribute_value_ids.*' => 'integer|exists:attribute_values,id',
+            'product_id'                    => 'required|integer|exists:products,id',
+            'quantity'                      => 'required|integer|min:1',
+            'product_attribute_value_ids'   => 'nullable|array',
+            'attribute_value_ids.*'         => 'integer|exists:product_attribute_values,id',
         ];
     }
 }

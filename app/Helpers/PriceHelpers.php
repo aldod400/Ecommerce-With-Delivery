@@ -11,8 +11,8 @@ class PriceHelpers
 
         foreach ($carts as $cart) {
             $attributesPrice = 0;
-            if (!empty($cart->attribute_values)) {
-                foreach ($cart->attribute_values as $attr) {
+            if (!empty($cart->ProductAttributeValues)) {
+                foreach ($cart->ProductAttributeValues as $attr) {
                     $attributesPrice += $attr->price;
                 }
             }
