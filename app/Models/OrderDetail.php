@@ -22,4 +22,9 @@ class OrderDetail extends Model
     {
         return $this->belongsTo(Order::class);
     }
+
+    public function attributeValues()
+    {
+        return $this->hasMany(OrderDetailAttributeValue::class);
+    }
 }

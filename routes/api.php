@@ -5,7 +5,11 @@ use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ConfigController;
+use App\Http\Controllers\Api\CouponController;
 use App\Http\Controllers\Api\HomeController;
+use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\WishlistController;
 use Illuminate\Support\Facades\Route;
@@ -33,10 +37,12 @@ Route::group(['middleware' => 'lang'], function () {
         Route::get('/children/{id}', [CategoryController::class, 'getChildrenCategory'])->name('getChildrenCategories');
     });
     Route::group(['prefix' => 'products'], function () {
+        Route::get('/', [ProductController::class, 'index'])->name('getAllProducts');
         Route::get('/category/{categoryId}', [ProductController::class, 'getProductsFromCategoryAndChildren'])->name('getProductsFromCategoryAndChildren');
         Route::get('/{id}', [ProductController::class, 'getProduct']);
     });
     Route::resource('carts', CartController::class)->middleware('auth:api');
+    Route::get('/cart/delivery-fee', [CartController::class, 'getDeliveryFee'])->middleware('auth:api');
     Route::resource('addresses', AddressController::class, [
         'only' => [
             'index',
@@ -53,4 +59,16 @@ Route::group(['middleware' => 'lang'], function () {
             'destroy'
         ]
     ])->middleware('auth:api');
+    Route::get('/coupons/{code}', [CouponController::class, 'validateCoupon'])
+        ->name('validateCoupon')->middleware('auth:api');
+
+    Route::group(['prefix' => 'orders'], function () {
+        Route::get('/', [OrderController::class, 'index']);
+        Route::post('/', [OrderController::class, 'store']);
+        Route::get('/{id}', [OrderController::class, 'show']);
+    })->middleware('auth:api');
+
+    Route::post('/payment/callback', [PaymentController::class, 'callback']);
+
+    Route::get('/notifications', [NotificationController::class, 'index'])->middleware('auth:api');
 });

@@ -18,4 +18,12 @@ class BrandRepository implements BrandRepositoryInterface
             )
             ->get();
     }
+    public function all()
+    {
+        return Brand::select(
+            'id',
+            app()->getLocale() == 'ar' ? 'name_ar as name' : 'name_en as name',
+            'image',
+        )->get();
+    }
 }

@@ -9,6 +9,7 @@ class Area extends Model
     protected $fillable = [
         'name_ar',
         'name_en',
+        'price',
         'city_id',
     ];
     public function city()

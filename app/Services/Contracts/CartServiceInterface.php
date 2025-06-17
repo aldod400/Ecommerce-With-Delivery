@@ -8,4 +8,5 @@ interface CartServiceInterface
     public function create(array $data);
     public function update(int $id, int $quantity);
     public function delete(int $id);
+    public function getDeliveryFee(int $addressId);
 }

@@ -26,10 +26,37 @@ class ProductRepository implements ProductRepositoryInterface
             )
             ->findOrFail($id);
     }
-    public function paginate(int $perPage, array $columns)
+    public function paginate(?string $search = null, int $perPage)
     {
-        return Product::where('status', ProductStatus::ACTIVE)
-            ->select(
+        return Product::with(['images' => function ($query) {
+            $query->take(1);
+        }])->latest()
+            ->where('status', ProductStatus::ACTIVE->value)
+            ->when($search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where(
+                        app()->getLocale() == 'ar' ? 'name_ar' : 'name_en',
+                        'like',
+                        "%{$search}%"
+                    )
+                        ->orWhere('description', 'like', "%{$search}%")
+                        ->orWhere('price', 'like', "%{$search}%")
+                        ->orWhere('discount_price', 'like', "%{$search}%")
+                        ->orWhere('quantity', 'like', "%{$search}%")
+                        ->orWhereRelation(
+                            'brand',
+                            app()->getLocale() == 'ar' ? 'name_ar' : 'name_en',
+                            'like',
+                            "%{$search}%"
+                        )
+                        ->orWhereRelation(
+                            'category',
+                            app()->getLocale() == 'ar' ? 'name_ar' : 'name_en',
+                            'like',
+                            "%{$search}%"
+                        );
+                });
+            })->select(
                 'id',
                 app()->getLocale() === 'ar' ? 'name_ar as name' : 'name_en as name',
                 'slug',
@@ -41,7 +68,7 @@ class ProductRepository implements ProductRepositoryInterface
                 'category_id',
                 'brand_id'
             )
-            ->paginate($perPage, $columns);
+            ->paginate($perPage);
     }
     public function latest(int $take)
     {

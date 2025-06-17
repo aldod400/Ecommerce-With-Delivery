@@ -13,6 +13,7 @@ use Filament\Tables\Table;
 use App\Models\AttributeValue;
 use App\Models\Attribute;
 use App\Models\ProductAttributeValue;
+use App\Enums\ProductStatus;
 
 class ProductResource extends Resource
 {
@@ -70,13 +71,13 @@ class ProductResource extends Resource
                     ->columnSpanFull(),
                 Forms\Components\TextInput::make('price')
                     ->label(__('message.Price'))
-                    ->minValue(0)
+                    ->minValue(1)
                     ->required()
                     ->numeric(),
                 Forms\Components\TextInput::make('discount_price')
                     ->label(__('message.Discount Price'))
                     ->numeric()
-                    ->minValue(0),
+                    ->minValue(1),
                 Forms\Components\TextInput::make('quantity')
                     ->label(__('message.Quantity'))
                     ->numeric()
@@ -151,10 +152,8 @@ class ProductResource extends Resource
                 Tables\Columns\IconColumn::make('status')
                     ->label(__('message.Status'))
                     ->boolean()
-                    ->trueIcon('heroicon-o-check-circle')
-                    ->falseIcon('heroicon-o-x-circle')
-                    ->trueColor('success')
-                    ->falseColor('danger'),
+                    ->icon(fn($state) => $state === ProductStatus::ACTIVE ? 'heroicon-o-check-circle' : 'heroicon-o-x-circle')
+                    ->color(fn($state) => $state === ProductStatus::ACTIVE ? 'success' : 'danger'),
                 Tables\Columns\TextColumn::make('category.name_en')
                     ->label(__('message.Category'))
                     ->sortable()

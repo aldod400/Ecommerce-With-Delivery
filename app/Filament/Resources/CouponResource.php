@@ -44,6 +44,7 @@ class CouponResource extends Resource
                 Forms\Components\TextInput::make('code')
                     ->label(__('message.Code'))
                     ->required()
+                    ->unique(ignoreRecord: true)
                     ->maxLength(255),
                 Forms\Components\Select::make('discount_type')
                     ->label(__('message.Discount Type'))

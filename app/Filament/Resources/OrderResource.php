@@ -44,6 +44,14 @@ class OrderResource extends Resource
     {
         return __('message.Orders');
     }
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::where('status', OrderStatus::PENDING)->count() . ' ' . __('message.Pending Orders');
+    }
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'warning';
+    }
     public static function form(Form $form): Form
     {
         return $form
@@ -101,10 +109,25 @@ class OrderResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('id')
+                    ->label(__('message.#ID'))
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('user.name')
+                    ->label(__('message.User Name'))
+                    ->sortable()
+                    ->default('-')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('user.phone')
+                    ->label(__('message.User Phone'))
+                    ->sortable()
+                    ->default('-')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('deliveryman.name')
                     ->visible(fn() => Setting::where('key', 'deliveryman')->value('value') === '1')
                     ->label(__('message.Deliveryman'))
                     ->sortable()
+                    ->default('-')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('status')
                     ->label(__('message.Status'))
@@ -128,7 +151,8 @@ class OrderResource extends Resource
                     ->label(__('message.Payment Method'))
                     ->color(fn(string $state): string => match ($state) {
                         'cash' => 'info',
-                        'online' => 'success',
+                        'visa' => 'success',
+                        'wallet' => 'warning',
                         default => 'gray'
                     })
                     ->formatStateUsing(function (string $state) {
@@ -160,13 +184,9 @@ class OrderResource extends Resource
                     })
                     ->badge()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('address')
+                Tables\Columns\TextColumn::make('address.address')
                     ->label(__('message.Address'))
                     ->searchable(),
-                Tables\Columns\TextColumn::make('total')
-                    ->label(__('message.Total Price'))
-                    ->numeric()
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('order.coupon.code')
                     ->label(__('message.Coupon'))
                     ->searchable()
@@ -175,7 +195,23 @@ class OrderResource extends Resource
                 Tables\Columns\TextColumn::make('discount')
                     ->label(__('message.Discount'))
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->formatStateUsing(fn(string $state) => $state . ' ' . __('message.Currency')),
+                Tables\Columns\TextColumn::make('subtotal')
+                    ->label(__('message.Sub Total'))
+                    ->numeric()
+                    ->sortable()
+                    ->formatStateUsing(fn(string $state) => $state . ' ' . __('message.Currency')),
+                Tables\Columns\TextColumn::make('delivery_fee')
+                    ->label(__('message.Delivery Fee'))
+                    ->numeric()
+                    ->sortable()
+                    ->formatStateUsing(fn(string $state) => $state . ' ' . __('message.Currency')),
+                Tables\Columns\TextColumn::make('total')
+                    ->label(__('message.Total Price'))
+                    ->numeric()
+                    ->sortable()
+                    ->formatStateUsing(fn(string $state) => $state . ' ' . __('message.Currency')),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -184,7 +220,7 @@ class OrderResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make(app()->getLocale() == 'ar' ? 'city.name_ar' : 'city.name_en')
+                Tables\Columns\TextColumn::make(app()->getLocale() == 'ar' ? 'address.city.name_ar' : 'address.city.name_en')
                     ->label(__('message.City'))
                     ->searchable()
                     ->sortable(),

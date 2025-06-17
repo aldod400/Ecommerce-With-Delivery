@@ -23,9 +23,16 @@ class ProductService implements ProductServiceInterface
     {
         return $this->productRepo->find($id);
     }
-    public function getProducts(int $perPage, array $columns)
+    public function getProducts(?string $search = null, int $perPage)
     {
-        return $this->productRepo->paginate($perPage, $columns);
+        $products = $this->productRepo->paginate($search, $perPage);
+
+        $products->map(function ($product) {
+            $product->image = optional($product->images->first())->image;
+            unset($product->images);
+            return $product;
+        });
+        return $products;
     }
     public function getLatestProducts(int $take)
     {

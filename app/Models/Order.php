@@ -18,12 +18,13 @@ class Order extends Model
         'longitude',
         'total',
         'notes',
-        'city_id',
+        'address_id',
         'area_id',
         'subtotal',
         'order_type',
         'coupon_id',
         'discount',
+        'delivery_fee',
         'created_by',
     ];
     public function user()
@@ -34,10 +35,7 @@ class Order extends Model
     {
         return $this->belongsTo(User::class)->where('user_type', UserType::DELIVERYMAN);
     }
-    public function city()
-    {
-        return $this->belongsTo(City::class);
-    }
+
     public function area()
     {
         return $this->belongsTo(Area::class);
@@ -58,5 +56,10 @@ class Order extends Model
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function address()
+    {
+        return $this->belongsTo(Address::class);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Services\Implementations;
 
+use App\Enums\ProductStatus;
 use App\Repository\Contracts\WishlistRepositoryInterface;
 use App\Services\Contracts\WishlistServiceInterface;
 
@@ -17,11 +18,15 @@ class WishlistService implements WishlistServiceInterface
     {
         $wishlists = $this->wishlistRepo->getAllByUserId($userId);
 
-        $wishlists->map(function ($wishlist) {
-            $wishlist->product->image = optional($wishlist->product->images->first())->image;
-            unset($wishlist->product->images);
-            return $wishlist;
-        });
+        $wishlists = $wishlists
+            ->filter(function ($wishlist) {
+                return $wishlist->product && $wishlist->product->status == ProductStatus::ACTIVE;
+            })->map(function ($wishlist) {
+                $wishlist->product->image = optional($wishlist->product->images->first())->image;
+                unset($wishlist->product->images);
+
+                return $wishlist;
+            })->values();
 
         return $wishlists;
     }

@@ -24,7 +24,11 @@ return new class extends Migration
                 'canceled',
             ])->default('pending');
 
-            $table->enum('payment_method', ['cash', 'online'])->default('cash');
+            $table->enum('payment_method', [
+                'cash',
+                'visa',
+                'wallet'
+            ])->default('cash');
             $table->enum('payment_status', ['paid', 'unpaid'])->default('unpaid');
 
             $table->decimal('subtotal', 10, 2);

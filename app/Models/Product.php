@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\ProductStatus;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Product extends Model
 {
@@ -45,8 +46,11 @@ class Product extends Model
     }
     public function attribute()
     {
-        return $this->belongsToMany(Attribute::class, 'product_attribute_values')
-            ->withPivot('id', 'attribute_value_id', 'product_id', 'price');
+        return $this->belongsToMany(Attribute::class, 'product_attribute_values', 'product_id')
+            ->join('attribute_values', 'product_attribute_values.attribute_value_id', '=', 'attribute_values.id')
+            ->where('attribute_values.attribute_id', '=', \DB::raw('attributes.id'))
+            ->withPivot('id', 'attribute_value_id', 'price')
+            ->distinct();
     }
 
     public function productAttributes()

@@ -76,8 +76,19 @@ class UserResource extends Resource
                 Forms\Components\FileUpload::make('image')
                     ->label(__('message.Image'))
                     ->default('storage/images/default.png')
-                    ->dehydrated(fn($state) => $state !== null)
-                    ->dehydrateStateUsing(fn($state) => $state ?: 'storage/images/default.png')
+                    ->dehydrated(fn($state) => filled($state))
+                    ->dehydrateStateUsing(function ($state) {
+                        if (is_array($state)) {
+                            $paths = array_values($state);
+                            return $paths[0] ?? 'storage/images/default.png';
+                        }
+
+                        if (is_string($state) && $state !== '') {
+                            return $state;
+                        }
+
+                        return 'storage/images/default.png';
+                    })
                     ->directory('users')
                     ->image(),
                 Forms\Components\Select::make('status')

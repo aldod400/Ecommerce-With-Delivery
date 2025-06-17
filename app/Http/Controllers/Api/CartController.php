@@ -5,16 +5,22 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Cart\StoreCartRequest;
 use App\Http\Requests\Api\Cart\updateCartRequest;
+use App\Http\Requests\Api\DelivaryFeeRequest;
 use App\Services\Contracts\CartServiceInterface;
+use App\Services\Contracts\DeliveryFeeServiceInterface;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class CartController extends Controller
 {
     protected $cartService;
-    public function __construct(CartServiceInterface $cartService)
-    {
+    protected $deliveryFeeService;
+    public function __construct(
+        CartServiceInterface $cartService,
+        DeliveryFeeServiceInterface $deliveryFeeService
+    ) {
         $this->cartService = $cartService;
+        $this->deliveryFeeService = $deliveryFeeService;
     }
     /**
      * Display a listing of the resource.
@@ -86,5 +92,14 @@ class CartController extends Controller
         if (!$result['success'])
             return Response::api($result['message'], 400, false, 400);
         return Response::api($result['message'], 200, true, null);
+    }
+    public function getDeliveryFee(DelivaryFeeRequest $request)
+    {
+        $result = $this->deliveryFeeService->calculateDeliveryFee($request->address_id, $request->area_id);
+
+        if (!$result['success'])
+            return Response::api($result['message'], 400, false, 400);
+
+        return Response::api($result['message'], 200, true, null, $result['data']);
     }
 }

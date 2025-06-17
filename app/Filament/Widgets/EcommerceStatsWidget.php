@@ -26,15 +26,13 @@ class EcommerceStatsWidget extends BaseWidget
             ->pluck('count')
             ->toArray();
 
-        $userStats = User::whereDate('created_at', '>=', now()->subDays(7))
-            ->groupBy(DB::raw('DATE(created_at)'))
+        $userStats = User::groupBy(DB::raw('DATE(created_at)'))
             ->orderBy(DB::raw('DATE(created_at)'))
             ->select(DB::raw('COUNT(*) as count'))
             ->pluck('count')
             ->toArray();
 
-        $salesStats = Order::whereDate('created_at', '>=', now()->subDays(7))
-            ->groupBy(DB::raw('DATE(created_at)'))
+        $salesStats = Order::groupBy(DB::raw('DATE(created_at)'))
             ->orderBy(DB::raw('DATE(created_at)'))
             ->select(DB::raw('SUM(total) as total'))
             ->pluck('total')

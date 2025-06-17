@@ -59,8 +59,13 @@ class AreaResource extends Resource
                     ->relationship('city', app()->getLocale() == 'ar' ? 'name_ar' : 'name_en')
                     ->required()
                     ->searchable()
-                    ->preload()
-                    ->columnSpanFull(),
+                    ->preload(),
+                Forms\Components\TextInput::make('price')
+                    ->label(__('message.Price'))
+                    ->required()
+                    ->numeric()
+                    ->minValue(0)
+                    ->step(0.01),
             ]);
     }
 
@@ -73,6 +78,9 @@ class AreaResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('name_en')
                     ->label(__('message.Name in English'))
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('price')
+                    ->label(__('message.Price'))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('city_id')
                     ->label(__('message.City'))

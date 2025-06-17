@@ -14,6 +14,15 @@ class ProductController extends Controller
     {
         $this->productService = $productService;
     }
+    public function index(Request $request)
+    {
+        $search = $request->input('search', null);
+        $perPage = (int) $request->input('per_page', 10);
+
+        $products = $this->productService->getProducts($search, $perPage);
+
+        return Response::api(__('message.Success'), 200, true, null, $products);
+    }
     public function getProductsFromCategoryAndChildren(Request $request, int $categoryId)
     {
         $perPage = (int) $request->input('per_page', 10);

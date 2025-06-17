@@ -25,6 +25,12 @@ class OrderDetailsRelationManager extends RelationManager
     {
         return $table
             ->columns([
+                Tables\Columns\ImageColumn::make('product.images.image')
+                    ->label(__('message.Image'))
+                    ->circular()
+                    ->stacked()
+                    ->limit(2)
+                    ->limitedRemainingText(),
                 Tables\Columns\TextColumn::make(app()->getLocale() == 'ar' ? 'product.name_ar' : 'product.name_en')
                     ->label(__('message.Product'))
                     ->searchable(),
@@ -34,7 +40,29 @@ class OrderDetailsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('price')
                     ->label(__('message.Price'))
                     ->searchable(),
+                Tables\Columns\TextColumn::make('product.discount_price')
+                    ->label(__('message.Discount Price'))
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('attributeValues')
+                    ->label(__('message.Attributes'))
+                    ->formatStateUsing(function ($record) {
+                        $grouped = $record->attributeValues
+                            ->filter(fn($attrValueRecord) => $attrValueRecord->attributeValue && $attrValueRecord->attributeValue->attribute)
+                            ->groupBy(function ($attrValueRecord) {
+                                $attribute = $attrValueRecord->attributeValue->attribute;
+                                return app()->getLocale() === 'ar' ? $attribute->name_ar : $attribute->name_en;
+                            });
 
+                        return $grouped->map(function ($items, $attributeName) {
+                            $values = $items->map(function ($item) {
+                                return '<span style="padding:4px 8px; background-color:#A855F7;border-radius:6px; color:white;font-size:12px">' . e($item->attributeValue->value) . '</span>';
+                            })->implode(', ');
+
+                            return '<span class="text-gray-700 font-semibold" style="margin:20px 0">' . e($attributeName) . '</span>: ' . $values;
+                        })->implode('<br>');
+                    })
+                    ->html()
+                    ->wrap()
             ]);
     }
 }
