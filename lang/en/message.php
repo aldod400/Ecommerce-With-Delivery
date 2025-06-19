@@ -333,4 +333,10 @@ return [
     'Users Login' => 'Users Login',
     'All' => 'All',
     'To' => 'To',
+    'FCM token updated successfully' => 'FCM token updated successfully',
+    'View Orders' => 'View Orders',
+    'Close' => 'Close',
+    'New Order Created' => 'New Order Created',
+    'You have a new order' => 'You have a new order',
+    'New Order' => 'New Order',
 ];

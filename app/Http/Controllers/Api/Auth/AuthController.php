@@ -7,6 +7,7 @@ use App\Http\Requests\Api\Auth\LoginRequest;
 use App\Http\Requests\Api\Auth\RegisterRequest;
 use App\Http\Requests\Api\Auth\UpdadeProfileRequest;
 use App\Services\Contracts\AuthServiceInterface;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class AuthController extends Controller
@@ -66,5 +67,15 @@ class AuthController extends Controller
     {
         $result = $this->authService->deleteProfile();
         return Response::api(__('message.Success'), 200, true, null);
+    }
+    public function saveFcmTokenToAdmin(Request $request)
+    {
+        $result = $this->authService->saveFcmTokenToAdmin($request->fcm_token, $request->user_id);
+
+        if (!$result['success']) {
+            return Response::api($result['message'], 400, false, 400);
+        }
+
+        return Response::api(__('message.Success'), 200, true, null, $result);
     }
 }

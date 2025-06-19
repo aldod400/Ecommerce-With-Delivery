@@ -29,6 +29,10 @@ class AuthRepository implements AuthRepositoryInterface
         $user->update($data);
         return $user;
     }
+    public function getAdmins()
+    {
+        return User::where('user_type', 'admin')->get();
+    }
     public function deleteUserById(string $id)
     {
         $user = User::findOrFail($id);

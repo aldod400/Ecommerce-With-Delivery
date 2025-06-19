@@ -71,4 +71,5 @@ Route::group(['middleware' => 'lang'], function () {
     Route::post('/payment/callback', [PaymentController::class, 'callback']);
 
     Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::post('/admin/save-token', [AuthController::class, 'saveFcmTokenToAdmin'])->name('admin.save-fcm-token');
 });

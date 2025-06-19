@@ -318,4 +318,10 @@ return [
     'Users Login' => 'المستخدمين المسجلين',
     'All' => 'الكل',
     'To' => 'إلى',
+    'FCM token updated successfully' => 'تم تحديث رمز FCM بنجاح',
+    'View Orders' => 'عرض الطلبات',
+    'Close' => 'إغلاق',
+    'New Order Created' => 'تم إنشاء طلب جديد',
+    'You have a new order' => 'لديك طلب جديد',
+    'New Order' => 'طلب جديد',
 ];

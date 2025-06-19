@@ -77,6 +77,10 @@ class AdminPanelProvider extends PanelProvider
             ->sidebarCollapsibleOnDesktop()
             ->globalSearch(false)
             // ->brandLogo(asset('storage/images/default.png'))
-            ->brandLogoHeight("50px");
+            ->brandLogoHeight("50px")
+            ->renderHook(
+                'panels::body.start',
+                fn() => view('filament.pages.firebase-script')
+            );
     }
 }

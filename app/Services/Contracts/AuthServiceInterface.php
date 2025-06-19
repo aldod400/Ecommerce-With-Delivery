@@ -9,5 +9,6 @@ interface AuthServiceInterface
     public function profile();
     public function updateProfile(array $data);
     public function updateFcmToken(string $fcmToken);
+    public function saveFcmTokenToAdmin(string $fcmToken, int $userId);
     public function deleteProfile();
 }

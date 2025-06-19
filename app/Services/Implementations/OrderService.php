@@ -4,10 +4,12 @@ namespace App\Services\Implementations;
 
 use App\Helpers\PriceHelpers;
 use App\Repository\Contracts\AddressRepositoryInterface;
+use App\Repository\Contracts\AuthRepositoryInterface;
 use App\Repository\Contracts\CartRepositoryInterface;
 use App\Repository\Contracts\OrderRepositoryInterface;
 use App\Repository\Contracts\PaymobPaymentRepositoryInterface;
 use App\Services\Contracts\DeliveryFeeServiceInterface;
+use App\Services\Contracts\FirebaseServiceInterface;
 use App\Services\Contracts\OrderServiceInterface;
 use App\Services\Contracts\PaymobServiceInterface;
 use Illuminate\Support\Facades\DB;
@@ -20,6 +22,8 @@ class OrderService implements OrderServiceInterface
     protected $addressRepo;
     protected $paymobService;
     protected $paymentRepo;
+    protected $firebaseService;
+    protected $authRepo;
 
     public function __construct(
         OrderRepositoryInterface $orderRepo,
@@ -27,7 +31,9 @@ class OrderService implements OrderServiceInterface
         CartRepositoryInterface $cartRepo,
         AddressRepositoryInterface $addressRepo,
         PaymobServiceInterface $paymobService,
-        PaymobPaymentRepositoryInterface $paymentRepositor
+        PaymobPaymentRepositoryInterface $paymentRepositor,
+        FirebaseServiceInterface $firebaseService,
+        AuthRepositoryInterface $authRepo
     ) {
         $this->orderRepo = $orderRepo;
         $this->deliveryFeeService = $deliveryFeeService;
@@ -35,6 +41,8 @@ class OrderService implements OrderServiceInterface
         $this->addressRepo = $addressRepo;
         $this->paymobService = $paymobService;
         $this->paymentRepo = $paymentRepositor;
+        $this->firebaseService = $firebaseService;
+        $this->authRepo = $authRepo;
     }
     public function create(array $data)
     {
@@ -123,6 +131,7 @@ class OrderService implements OrderServiceInterface
                     $data['wallet_number']
                 );
             }
+
             if ($paymentData)
                 $this->paymentRepo->create([
                     'user_id' => $order->user_id,
@@ -139,6 +148,19 @@ class OrderService implements OrderServiceInterface
                 'paymentData' => $paymentData
             ];
         });
+
+        $this->authRepo->getAdmins()->each(function ($admin) use ($order) {
+            $this->firebaseService->sendNotification(
+                __('message.New Order'),
+                __('message.New Order Created') . ' #' . $order['order']->id,
+                'user',
+                $admin->fcm_token ?? '',
+                false,
+                $admin->id,
+                null,
+            );
+        });
+
 
         return [
             'success' => true,

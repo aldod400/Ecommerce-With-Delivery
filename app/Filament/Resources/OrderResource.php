@@ -50,6 +50,10 @@ class OrderResource extends Resource
     {
         return 'warning';
     }
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        return parent::getEloquentQuery()->orderByDesc('id');
+    }
     public static function form(Form $form): Form
     {
         return $form

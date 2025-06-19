@@ -120,4 +120,16 @@ class AuthService implements AuthServiceInterface
         $this->authRepository->deleteUserById($user->id);
         return true;
     }
+    public function saveFcmTokenToAdmin(string $fcmToken, int $userId)
+    {
+        $data = $this->authRepository->updateUserById($userId, [
+            'fcm_token' => $fcmToken
+        ]);
+
+        return [
+            'success' => true,
+            'message' => __('message.FCM token updated successfully'),
+            'data' => $data
+        ];
+    }
 }
