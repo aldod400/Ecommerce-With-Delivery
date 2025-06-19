@@ -26,4 +26,9 @@ class Notification extends Model
     {
         return Carbon::parse($value)->setTimezone(config('app.timezone'))->toDateTimeString();
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

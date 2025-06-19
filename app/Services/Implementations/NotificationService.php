@@ -14,8 +14,11 @@ class NotificationService implements NotificationServiceInterface
         $this->notificationRepo = $notificationRepo;
     }
 
-    public function getNotifications($userId)
+    public function getNotifications(?int $userId)
     {
+        if (!$userId)
+            return $this->notificationRepo->getNotifications();
+
         return $this->notificationRepo->getNotificationsByUserId($userId);
     }
 }

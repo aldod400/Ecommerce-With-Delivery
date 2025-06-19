@@ -5,11 +5,13 @@ namespace App\Filament\Pages;
 use App\Enums\OrderStatus;
 use App\Enums\ProductStatus;
 use App\Enums\UserType;
+use App\Helpers\DestanceHelpers;
 use App\Models\Address;
 use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
+use App\Services\Implementations\DeliveryFeeService;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
@@ -26,8 +28,11 @@ use Livewire\WithPagination;
 use App\Models\Area;
 use App\Models\City;
 use App\Models\Setting;
+use App\Repository\Contracts\AddressRepositoryInterface;
+use App\Repository\Contracts\CityRepositoryInterface;
 use App\Services\Implementations\FirebaseService;
 use App\Repository\Contracts\NotificationRepositoryInterface;
+use App\Repository\Contracts\SettingRepositoryInterface;
 
 class PosSystem extends Page implements HasForms
 {
@@ -73,6 +78,7 @@ class PosSystem extends Page implements HasForms
     public $products = [];
     public $cart = [];
     public $subtotal = 0;
+    public $deliveryFee = 0;
     public $total = 0;
     public $discount = 0;
     public $coupon = null;
@@ -188,7 +194,7 @@ class PosSystem extends Page implements HasForms
                                             if ($this->selectedUser && $this->selectedUser->id) {
                                                 $this->dispatch('open-add-address', ['userId' => $this->selectedUser->id]);
                                             } else {
-                                                // Show notification if no user is selected
+
                                                 Notification::make()
                                                     ->title(__('message.Error'))
                                                     ->body(__('message.Please select a customer first'))
@@ -331,7 +337,10 @@ class PosSystem extends Page implements HasForms
                                 }
                                 return number_format($this->discount, 2) . ' ' . __('message.currency');
                             }),
-
+                        Placeholder::make('deliveryfee_display')
+                            ->label(__('message.Delivery Fee'))
+                            ->content(fn(): string => number_format($this->deliveryFee, 2) . ' ' . __('message.currency'))
+                            ->visible(fn() => Setting::where('key', 'deliveryman')->value('value')),
                         Placeholder::make('total_display')
                             ->label(__('message.Total'))
                             ->content(fn(): string => number_format($this->total, 2) . ' ' . __('message.currency')),
@@ -657,12 +666,28 @@ class PosSystem extends Page implements HasForms
     public function addToCart($productId)
     {
         try {
-            // First check if product has attributes
+            if (!$this->selectedAddress) {
+                Notification::make()
+                    ->title(__('message.Error'))
+                    ->body(__('message.Please select an address'))
+                    ->danger()
+                    ->send();
+                return;
+            }
+            $deliveryType = Setting::where('key', 'delivery_fee_type')->value('value');
+            if ($deliveryType === 'area' && !$this->data['area_id']) {
+                Notification::make()
+                    ->title(__('message.Error'))
+                    ->body(__('message.Please select an area'))
+                    ->danger()
+                    ->send();
+                return;
+            }
+
             $this->showProductAttributes($productId);
         } catch (\Exception $e) {
             $this->handleAttributeError($e, 'adding product to cart');
 
-            // Try to add directly without attributes as fallback
             try {
                 $product = Product::find($productId);
                 if ($product && $product->quantity > 0) {
@@ -714,16 +739,26 @@ class PosSystem extends Page implements HasForms
 
     public function calculateTotal()
     {
+        if (!$this->selectedAddress) {
+            Notification::make()
+                ->title(__('message.Error'))
+                ->body(__('message.Please select an address'))
+                ->danger()
+                ->send();
+            $this->cart = [];
+            return;
+        }
         $this->subtotal = collect($this->cart)->sum(function ($item) {
-            return $item['price'] * $item['quantity'];
+            $itemTotal = $item['price'] * $item['quantity'];
+            return $itemTotal;
         });
+
         $this->discount = 0;
 
         if ($this->coupon) {
-            // Handle both enum and string values for discount_type
             $discountType = $this->coupon->discount_type;
             if (is_object($discountType)) {
-                $discountType = $discountType->value; // If it's an enum, get the value
+                $discountType = $discountType->value;
             }
 
             if ($discountType === 'percentage') {
@@ -732,16 +767,33 @@ class PosSystem extends Page implements HasForms
                 $this->discount = $this->coupon->discount_value;
             }
 
-            // Make sure discount doesn't exceed subtotal
             if ($this->discount > $this->subtotal) {
                 $this->discount = $this->subtotal;
             }
         }
 
         $this->total = max(0, $this->subtotal - $this->discount);
-        // Setting::where('key', 'delivery_fee_type')->value('value') === 'fixed'
-        // if(){}elseif(){}else{}
-        // Force refresh the form display
+
+        $addressRepo = app(AddressRepositoryInterface::class);
+        $settingRepo = app(SettingRepositoryInterface::class);
+        $cityRepo = app(CityRepositoryInterface::class);
+
+        $firebaseService = new DeliveryFeeService($addressRepo, $settingRepo, $cityRepo);
+        $deliveryFee = $firebaseService->calculateDeliveryFee($this->selectedAddress->id, $this->data['area_id']);
+
+        if (!$deliveryFee['success']) {
+            Notification::make()
+                ->title(__('message.Error'))
+                ->body($deliveryFee['message'])
+                ->danger()
+                ->send();
+            $this->dispatch('refresh-totals');
+            return;
+        }
+        $this->deliveryFee = $deliveryFee['data'];
+
+        $this->total += $deliveryFee['data'];
+
         $this->dispatch('refresh-totals');
     }
 
@@ -793,6 +845,7 @@ class PosSystem extends Page implements HasForms
                 'subtotal'   => $this->subtotal,
                 'total'      => $this->total,
                 'discount'   => $this->discount,
+                'delivery_fee' => $this->deliveryFee,
                 'coupon_id'  => $this->coupon ? $this->coupon->id : null,
                 'notes'      => $this->data['notes'] ?? null,
                 'order_type' => 'pos',

@@ -34,9 +34,18 @@ class ProductService implements ProductServiceInterface
         });
         return $products;
     }
-    public function getLatestProducts(int $take)
+    public function getBestSellingProducts(int $take)
     {
-        $products = $this->productRepo->latest($take);
+        $products = $this->productRepo->getBestSelling($take);
+
+        if ($products->count() < $take) {
+            $remaining = $take - $products->count();
+            $latest = $this->productRepo->latest($remaining);
+
+            $products = $products->merge(
+                $latest->whereNotIn('id', $products->pluck('id'))
+            );
+        }
 
         $products->map(function ($product) {
             $product->image = optional($product->images->first())->image;

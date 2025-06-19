@@ -309,4 +309,13 @@ return [
     'Failed to get Firebase Access Token' => 'فشل في الحصول على رمز الوصول إلى Firebase',
     'Notification sent successfully' => 'تم إرسال الإشعار بنجاح',
     'Pending Orders' => 'الطلبات المعلقة',
+    'Please select an address' => 'الرجاء اختيار عنوان',
+    'Please select an area' => 'الرجاء اختيار منطقة',
+    'Notification' => 'الإشعار',
+    'Notifications' => 'الإشعارات',
+    'Title' => 'العنوان',
+    'Body' => 'المحتوى',
+    'Users Login' => 'المستخدمين المسجلين',
+    'All' => 'الكل',
+    'To' => 'إلى',
 ];

@@ -5,6 +5,7 @@ namespace App\Repository\Eloquent;
 use App\Models\Product;
 use App\Repository\Contracts\ProductRepositoryInterface;
 use App\Enums\ProductStatus;
+use Illuminate\Support\Facades\DB;
 
 class ProductRepository implements ProductRepositoryInterface
 {
@@ -69,6 +70,43 @@ class ProductRepository implements ProductRepositoryInterface
                 'brand_id'
             )
             ->paginate($perPage);
+    }
+    public function getBestSelling(int $take)
+    {
+        return Product::with(['images' => function ($query) {
+            $query->take(1);
+        }])
+            ->where('products.status', ProductStatus::ACTIVE->value)
+            ->select(
+                'products.id',
+                app()->getLocale() === 'ar' ? 'products.name_ar as name' : 'products.name_en as name',
+                'products.slug',
+                'products.description',
+                'products.price',
+                'products.discount_price',
+                'products.quantity',
+                'products.status',
+                'products.category_id',
+                'products.brand_id',
+                DB::raw('SUM(order_details.quantity) as total_sold')
+            )
+            ->join('order_details', 'products.id', '=', 'order_details.product_id')
+            ->groupBy(
+                'products.id',
+                'products.name_ar',
+                'products.name_en',
+                'products.slug',
+                'products.description',
+                'products.price',
+                'products.discount_price',
+                'products.quantity',
+                'products.status',
+                'products.category_id',
+                'products.brand_id'
+            )
+            ->orderByDesc('total_sold')
+            ->take($take)
+            ->get();
     }
     public function latest(int $take)
     {

@@ -43,7 +43,7 @@ class HomeController extends Controller
     }
     public function getLatestProducts()
     {
-        $products = $this->productService->getLatestProducts(50);
+        $products = $this->productService->getBestSellingProducts(30);
 
         return Response::api(__('message.Success'), 200, true, null, $products);
     }

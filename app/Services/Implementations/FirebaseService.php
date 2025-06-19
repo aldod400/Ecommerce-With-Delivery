@@ -59,7 +59,7 @@ class FirebaseService implements FirebaseServiceInterface
                 "notification" => [
                     "title" => $title,
                     "body" => $body,
-                    "image" => $image ?? "",
+                    "image" => env('APP_URL') . '/storage/' . $image ?? "",
                 ],
                 "data" => $data,
             ]

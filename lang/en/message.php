@@ -324,4 +324,13 @@ return [
     'Failed to get Firebase Access Token' => 'Failed to get Firebase Access Token',
     'Notification sent successfully' => 'Notification sent successfully',
     'Pending Orders' => 'Pending Orders',
+    'Please select an address' => 'Please select an address',
+    'Please select an area' => 'Please select an area',
+    'Notifications' => 'Notifications',
+    'Notification' => 'Notification',
+    'Title' => 'Title',
+    'Body' => 'Body',
+    'Users Login' => 'Users Login',
+    'All' => 'All',
+    'To' => 'To',
 ];

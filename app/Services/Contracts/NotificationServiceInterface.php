@@ -4,5 +4,5 @@ namespace App\Services\Contracts;
 
 interface NotificationServiceInterface
 {
-    public function getNotifications($userId);
+    public function getNotifications(?int $userId);
 }

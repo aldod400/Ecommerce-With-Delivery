@@ -16,7 +16,7 @@ class NotificationController extends Controller
     }
     public function index()
     {
-        $notifications = $this->notificationService->getNotifications(auth('api')->user()->id);
+        $notifications = $this->notificationService->getNotifications(auth('api')->user()?->id);
 
         return Response::api(__('message.Success'), 200, true, null, $notifications);
     }

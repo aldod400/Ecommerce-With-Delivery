@@ -105,7 +105,10 @@ class DeliverySettings extends Page
                                 'streetViewControl' => true,
                             ])
                             ->clickable()
-                            ->defaultLocation([30.0444, 31.2357])
+                            ->defaultLocation([
+                                31.1840033388827,
+                                29.91577952653098
+                            ])
                             ->required()
                             ->visible(fn($get) => $get('deliveryman') && $get('delivery_fee_type') === 'per_km')
                             ->reactive()

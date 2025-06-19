@@ -14,9 +14,6 @@ use App\Models\Setting;
 use App\Models\User;
 use App\Enums\UserType;
 use App\Enums\OrderStatus;
-use App\Models\Coupon;
-use App\Models\UserCoupons;
-use Filament\Notifications\Notification;
 use Illuminate\Support\Str;
 
 class OrderResource extends Resource
@@ -46,7 +43,8 @@ class OrderResource extends Resource
     }
     public static function getNavigationBadge(): ?string
     {
-        return static::getModel()::where('status', OrderStatus::PENDING)->count() . ' ' . __('message.Pending Orders');
+        $pendingOrders = static::getModel()::where('status', OrderStatus::PENDING)->count();
+        return $pendingOrders > 0 ? $pendingOrders  . ' ' . __('message.Pending') : null;
     }
     public static function getNavigationBadgeColor(): ?string
     {

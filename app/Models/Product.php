@@ -48,7 +48,7 @@ class Product extends Model
     {
         return $this->belongsToMany(Attribute::class, 'product_attribute_values', 'product_id')
             ->join('attribute_values', 'product_attribute_values.attribute_value_id', '=', 'attribute_values.id')
-            ->where('attribute_values.attribute_id', '=', \DB::raw('attributes.id'))
+            ->where('attribute_values.attribute_id', '=', DB::raw('attributes.id'))
             ->withPivot('id', 'attribute_value_id', 'price')
             ->distinct();
     }
@@ -60,5 +60,9 @@ class Product extends Model
                 'attributeValue:id,attribute_id,value',
                 'attributeValue.attribute:id,' . (app()->getLocale() === 'ar' ? 'name_ar' : 'name_en') . ' as name',
             ]);
+    }
+    public function orderDetails()
+    {
+        return $this->hasMany(OrderDetail::class);
     }
 }

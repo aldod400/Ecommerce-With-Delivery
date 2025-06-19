@@ -63,12 +63,12 @@ Route::group(['middleware' => 'lang'], function () {
         ->name('validateCoupon')->middleware('auth:api');
 
     Route::group(['prefix' => 'orders'], function () {
-        Route::get('/', [OrderController::class, 'index']);
-        Route::post('/', [OrderController::class, 'store']);
-        Route::get('/{id}', [OrderController::class, 'show']);
-    })->middleware('auth:api');
+        Route::get('/', [OrderController::class, 'index'])->middleware('auth:api');
+        Route::post('/', [OrderController::class, 'store'])->middleware('auth:api');
+        Route::get('/{id}', [OrderController::class, 'show'])->middleware('auth:api');
+    });
 
     Route::post('/payment/callback', [PaymentController::class, 'callback']);
 
-    Route::get('/notifications', [NotificationController::class, 'index'])->middleware('auth:api');
+    Route::get('/notifications', [NotificationController::class, 'index']);
 });
