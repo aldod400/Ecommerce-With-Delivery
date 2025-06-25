@@ -61,15 +61,35 @@ class OrderResource extends Resource
                 Forms\Components\Select::make('deliveryman_id')
                     ->label(__('message.Deliveryman'))
                     ->options(function () {
-                        return User::where('user_type', UserType::DELIVERYMAN)->get()->mapWithKeys(function ($user) {
-                            return [
+                        return User::where('user_type', UserType::DELIVERYMAN)
+                            ->get()
+                            ->mapWithKeys(fn($user) => [
                                 $user->id => $user->name . ' - ' . $user->phone,
-                            ];
-                        });
+                            ]);
                     })
                     ->searchable()
                     ->preload()
+                    ->reactive()
                     ->visible(fn() => Setting::where('key', 'deliveryman')->value('value') === '1')
+                    ->afterStateUpdated(function ($state, callable $get, callable $set) {
+                        $allowedStatuses = [
+                            OrderStatus::READY->value,
+                            OrderStatus::ONDELIVERY->value,
+                            OrderStatus::DELIVERED->value,
+                            OrderStatus::CANCELED->value,
+                        ];
+
+                        $currentStatus = $get('status');
+
+                        if (!in_array($currentStatus, $allowedStatuses)) {
+                            \Filament\Notifications\Notification::make()
+                                ->warning()
+                                ->title(__('message.Deliveryman can only be assigned when order status is Ready, On Delivery, Delivered or Canceled'))
+                                ->send();
+
+                            $set('deliveryman_id', null);
+                        }
+                    })
                     ->default(null)
                     ->columnSpanFull(),
 
@@ -191,7 +211,6 @@ class OrderResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('order.coupon.code')
                     ->label(__('message.Coupon'))
-                    ->searchable()
                     ->default('-')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('discount')

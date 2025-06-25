@@ -38,7 +38,7 @@ class FilterOrderRequest extends FormRequest
     {
         return [
             'per_page' => 'nullable|integer|min:1',
-            'status' => 'nullable|string|in:pending,confirmed,preparing,ready,on_delivery,delivered,canceled',
+            'status' => 'nullable|string|in:ready,on_delivery,completed',
             'payment_status' => 'nullable|string|in:unpaid,paid',
             'payment_method' => 'nullable|string|in:cash,visa,wallet',
             'search' => 'nullable|string'

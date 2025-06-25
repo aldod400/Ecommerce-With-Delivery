@@ -324,4 +324,9 @@ return [
     'New Order Created' => 'تم إنشاء طلب جديد',
     'You have a new order' => 'لديك طلب جديد',
     'New Order' => 'طلب جديد',
+    'Deliveryman is disabled' => 'مندوب التوصيل غير نشط',
+    'Deliveryman can only be assigned when order status is Ready, On Delivery, Delivered or Canceled' => 'مندوب التوصيل يمكن أن يتم تعيينه فقط عند حالة الطلب جاهز, قيد التوصيل, تم التوصيل أو ملغي',
+    'Order Already Delivered' => 'الطلب تم توصيله بالفعل',
+    'Invalid Status Change' => 'تغيير الحالة غير صالح',
+    'Invalid Status' => 'حالة غير صالحة',
 ];

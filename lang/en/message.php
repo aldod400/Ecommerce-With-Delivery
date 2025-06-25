@@ -339,4 +339,9 @@ return [
     'New Order Created' => 'New Order Created',
     'You have a new order' => 'You have a new order',
     'New Order' => 'New Order',
+    'Deliveryman is disabled' => 'Deliveryman is disabled',
+    'Deliveryman can only be assigned when order status is Ready, On Delivery, Delivered or Canceled' => 'Deliveryman can only be assigned when order status is Ready, On Delivery, Delivered or Canceled',
+    'Order Already Delivered' => 'Order Already Delivered',
+    'Invalid Status Change' => 'Invalid Status Change',
+    'Invalid Status' => 'Invalid Status',
 ];

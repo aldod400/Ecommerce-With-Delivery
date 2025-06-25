@@ -19,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'webLang' => \App\Http\Middleware\WebLang::class,
             'lang' => \App\Http\Middleware\Lang::class,
+            'CheckDeliveryman' => \App\Http\Middleware\CheckDeliveryman::class,
         ]);
     })
 

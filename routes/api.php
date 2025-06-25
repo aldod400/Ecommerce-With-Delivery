@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ConfigController;
 use App\Http\Controllers\Api\CouponController;
+use App\Http\Controllers\Api\Deliveryman\OrderController as DeliverymanOrderController;
 use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\OrderController;
@@ -72,4 +73,8 @@ Route::group(['middleware' => 'lang'], function () {
 
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::post('/admin/save-token', [AuthController::class, 'saveFcmTokenToAdmin'])->name('admin.save-fcm-token');
+    Route::group(['prefix' => 'deliveryman', 'middleware' => 'CheckDeliveryman'], function () {
+        Route::get('/orders', [DeliverymanOrderController::class, 'index']);
+        Route::post('/orders/status/{id}', [DeliverymanOrderController::class, 'changeStatus']);
+    });
 });

@@ -29,7 +29,7 @@
                 },
                 body: JSON.stringify({ 
                     fcm_token: token,
-                    user_id: {{ auth()->user()->id }} 
+                    user_id: {{ auth('web')->user()?->id }} 
                  })
             });
         }

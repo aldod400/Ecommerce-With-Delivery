@@ -195,4 +195,61 @@ class OrderService implements OrderServiceInterface
             'data' => $order
         ];
     }
+    public function getDeliverymanOrders(int $deliverymanId, int $perPage, ?string $status = null, ?string $paymentStatus, ?string $paymentMethod, ?string $search)
+    {
+        $orders = $this->orderRepo->getDeliverymanOrders($deliverymanId, $perPage, $status, $paymentStatus, $paymentMethod, $search);
+        $orders->map(function ($order) {
+            $order->orderDetails->map(function ($orderDetail) {
+                $orderDetail->product->image = $orderDetail->product->images->first()?->image;
+                unset($orderDetail->product->images);
+            });
+        });
+
+        return [
+            'success' => true,
+            'message' => __('message.Success'),
+            'data' => $orders
+        ];
+    }
+    public function updateOrderStatusByDeliveryman(int $orderId, string $status)
+    {
+        $order = $this->orderRepo->getOrderById($orderId);
+
+        if ($order->deliveryman_id != auth('api')->user()->id)
+            return [
+                'success' => false,
+                'message' => __('message.Unauthorized'),
+            ];
+
+        if ($order->status == 'delivered')
+            return [
+                'success' => false,
+                'message' => __('message.Order Already Delivered'),
+            ];
+
+        if ($order->status == 'ready' && $status != 'on_delivery')
+            return [
+                'success' => false,
+                'message' => __('message.Invalid Status Change'),
+            ];
+
+        if ($order->status == 'on_delivery' && $status != 'delivered')
+            return [
+                'success' => false,
+                'message' => __('message.Invalid Status Change'),
+            ];
+
+        if (!in_array($status, ['on_delivery', 'delivered']))
+            return [
+                'success' => false,
+                'message' => __('message.Invalid Status'),
+            ];
+
+        $this->orderRepo->updateOrderStatus($orderId, $status);
+
+        return [
+            'success' => true,
+            'message' => __('message.Success')
+        ];
+    }
 }
