@@ -277,6 +277,10 @@ JWT_SECRET=your_jwt_secret
 # Payment Gateway (Paymob)
 PAYMOB_API_KEY=your_paymob_api_key
 PAYMOB_MERCHANT_ID=your_paymob_merchant_id
+PAYMOB_INTEGRATION_ID=your_paymob_integration_id
+PAYMOB_HMAC_SECRET=your_paymob_hmac_secret
+PAYMOB_WALLET_INTEGRATION_ID=your_paymob_wallet_integration_id
+PAYMOB_IFRAME_ID=your_paymob_iframe_id
 ```
 
 6. **Database Setup**
