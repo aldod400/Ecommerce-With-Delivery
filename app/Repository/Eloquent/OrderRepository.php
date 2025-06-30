@@ -92,7 +92,7 @@ class OrderRepository implements OrderRepositoryInterface
         $query->where('deliveryman_id', $deliverymanId);
         if ($status) {
             if ($status == 'completed') {
-                $query->whereIn('status', ['completed', 'canceled']);
+                $query->whereIn('status', ['delivered', 'canceled']);
             } else {
                 $query->where('status', $status);
             }
@@ -153,7 +153,7 @@ class OrderRepository implements OrderRepositoryInterface
                 'created_at',
                 'updated_at'
             );
-        }])->paginate($perPage);
+        }])->orderByDesc('id')->paginate($perPage);
     }
     public function updateOrderStatus(int $orderId, string $status)
     {
