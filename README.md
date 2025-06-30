@@ -2447,11 +2447,11 @@ For support and questions:
 
 ## 👨‍💻 Author
 
-This project was developed by **Abdelrahman Elghonemy** ([@aldod400](https://github.com/aldod400))
+This project was developed by **Abdelrahman Elghonemy** ([@Abdelrahman Elghonemy](https://github.com/aldod400))
 
 -   **Email:** aldodelghonemy400@gmail.com
 -   **GitHub:** https://github.com/aldod400
--   **LinkedIn:** Feel free to connect for professional inquiries
+-   **LinkedIn:** https://www.linkedin.com/in/abdelrahman-elghonemy-074867242/
 
 ## 🎯 Key Features Summary
 
